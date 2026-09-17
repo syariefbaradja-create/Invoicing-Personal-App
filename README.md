@@ -42,12 +42,14 @@ Sudah jalan:
 - [x] Shareable link publik (`/share/[token]`) — klien bisa buka & download PDF invoice tanpa login, link di-generate dari tombol "Share Link" di halaman invoice
 - [x] Tanda tangan digital — upload gambar signature di Settings, otomatis tampil di semua invoice PDF (raster only, sama seperti logo)
 - [x] Attachments per invoice — upload PDF/gambar (maks 5MB) di halaman invoice, bisa didownload dari halaman detail maupun share link publik
+- [x] Recurring invoice — tandai invoice sebagai template (mingguan/bulanan/tiap 3 bulan/tahunan), draft baru otomatis dibuat begitu jatuh temponya lewat (dicek tiap kali Dashboard dibuka — tidak perlu cron server terpisah)
+- [x] Payment tracking parsial — catat pembayaran bertahap (Amount Received, Transaction Charge, metode, tanggal), progress bar "Rp X Collected / Rp Y Due" di invoice & halaman share publik, status otomatis jadi Lunas begitu terkumpul penuh
 
-Fase 1 dari roadmap Refrens (lihat memory project) sudah lengkap semua. Belum dikerjakan (di luar scope sesi ini):
+Fase 1 dan sebagian besar Fase 2 dari roadmap Refrens (lihat memory project) sudah selesai. Belum dikerjakan (di luar scope sesi ini):
 
+- [ ] Reminder email (butuh layanan pengirim email — SMTP/Resend/dll — belum disiapkan)
 - [ ] Backup database otomatis terjadwal (saat ini manual via halaman Settings → Export Data)
 - [ ] Logo/signature SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
-- [ ] Recurring invoice, reminder email, payment tracking parsial (Fase 2)
 - [ ] Custom formula columns, payment gateway, approval workflow (Fase 3 — sengaja ditunda, lihat dokumen roadmap)
 
 ## Catatan teknis
@@ -55,3 +57,4 @@ Fase 1 dari roadmap Refrens (lihat memory project) sudah lengkap semua. Belum di
 - Database file: `prisma/dev.db` (di-gitignore — backup manual secara berkala).
 - Nomor invoice reset otomatis tiap tahun (`INV-2026-001`, dst.), disimpan di tabel `BusinessProfile`.
 - Status "Overdue" adalah status turunan (invoice `SENT`/`UNPAID` dengan `dueDate` terlewat), bukan status tersimpan terpisah — sesuai prinsip "status invoice adalah satu-satunya sumber data" di PRD.
+- Recurring invoice tidak pakai cron/scheduler terpisah — `processRecurringInvoices()` dipanggil tiap Dashboard dimuat, cukup untuk pola pemakaian harian single-user. Kalau Dashboard tidak dibuka berhari-hari, draft baru baru muncul saat dibuka lagi (bukan generate tepat waktu).

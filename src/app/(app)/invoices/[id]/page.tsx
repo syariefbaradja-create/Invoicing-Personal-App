@@ -3,6 +3,8 @@ import { FilePdf, Copy, Trash } from "@phosphor-icons/react/dist/ssr";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { InvoiceAttachments } from "@/components/InvoiceAttachments";
+import { PaymentTracking } from "@/components/PaymentTracking";
+import { RecurringSettings } from "@/components/RecurringSettings";
 import { getClients } from "@/lib/actions/clients";
 import {
   getInvoice,
@@ -13,6 +15,8 @@ import {
   type InvoiceInput,
 } from "@/lib/actions/invoices";
 import { addAttachment, deleteAttachment } from "@/lib/actions/attachments";
+import { recordPayment, deletePayment } from "@/lib/actions/payments";
+import { setRecurring } from "@/lib/actions/recurring";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LinkButton, Button } from "@/components/ui/Button";
 
@@ -91,6 +95,24 @@ export default async function InvoiceDetailPage({
         }}
         onSubmit={handleUpdate}
       />
+
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        <PaymentTracking
+          invoiceId={id}
+          total={invoice.total}
+          currency={invoice.currency}
+          payments={invoice.payments}
+          recordPayment={recordPayment}
+          deletePayment={deletePayment}
+        />
+        <RecurringSettings
+          invoiceId={id}
+          isRecurring={invoice.isRecurring}
+          recurringInterval={invoice.recurringInterval}
+          recurringNextDate={invoice.recurringNextDate}
+          setRecurring={setRecurring}
+        />
+      </div>
 
       <div className="mt-6">
         <InvoiceAttachments

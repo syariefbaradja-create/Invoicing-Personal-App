@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { FilePdf, Receipt, Paperclip, FileImage } from "@phosphor-icons/react/dist/ssr";
 import { getInvoiceByPublicToken } from "@/lib/actions/invoices";
 import { getSettings } from "@/lib/actions/settings";
+import { getPaymentSummary } from "@/lib/paymentSummary";
 import { formatCurrency, isOverdue, terbilangRupiah } from "@/lib/invoice";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LinkButton } from "@/components/ui/Button";
@@ -18,6 +19,8 @@ export default async function PublicInvoicePage({
   ]);
 
   if (!invoice) notFound();
+
+  const paymentSummary = getPaymentSummary(invoice);
 
   return (
     <div className="min-h-screen bg-background px-4 py-10">
@@ -133,6 +136,23 @@ export default async function PublicInvoicePage({
               </div>
             )}
           </div>
+
+          {paymentSummary.isPartial && (
+            <div className="mb-6">
+              <div className="mb-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-paid-foreground"
+                  style={{
+                    width: `${Math.min(100, (paymentSummary.collected / invoice.total) * 100)}%`,
+                  }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{formatCurrency(paymentSummary.collected, invoice.currency)} Collected</span>
+                <span>{formatCurrency(paymentSummary.due, invoice.currency)} Due</span>
+              </div>
+            </div>
+          )}
 
           {(profile.bankName || profile.bankAccountNumber) && (
             <div className="mt-6 rounded-md bg-muted/50 p-4 text-sm">
