@@ -1,8 +1,16 @@
+import { DownloadSimple } from "@phosphor-icons/react/dist/ssr";
 import { getSettings, updateSettings } from "@/lib/actions/settings";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Field, inputClass } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { LogoUploadField } from "@/components/LogoUploadField";
+
+const EXPORT_LINKS = [
+  { href: "/api/export?type=clients&format=csv", label: "Contacts (CSV)" },
+  { href: "/api/export?type=invoices&format=csv", label: "Invoices (CSV)" },
+  { href: "/api/export?type=invoice-items&format=csv", label: "Invoice Items (CSV)" },
+  { href: "/api/export?format=json", label: "Semua Data (JSON)" },
+];
 
 export default async function SettingsPage() {
   const profile = await getSettings();
@@ -119,6 +127,25 @@ export default async function SettingsPage() {
 
         <Button type="submit">Simpan</Button>
       </form>
+
+      <fieldset className="mt-6 space-y-3 rounded-lg border border-border bg-card p-5">
+        <legend className="px-1 text-sm font-semibold text-foreground">Export Data</legend>
+        <p className="text-sm text-muted-foreground">
+          Backup data klien &amp; invoice untuk jaga-jaga migrasi ke tool lain di masa depan.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {EXPORT_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              <DownloadSimple size={16} aria-hidden="true" />
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </fieldset>
     </div>
   );
 }
