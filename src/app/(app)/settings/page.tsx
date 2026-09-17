@@ -1,150 +1,121 @@
 import { getSettings, updateSettings } from "@/lib/actions/settings";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Field, inputClass } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
 
 export default async function SettingsPage() {
   const profile = await getSettings();
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+    <div className="max-w-2xl">
+      <PageHeader title="Settings" />
 
       <form action={updateSettings} className="space-y-6">
-        <fieldset className="space-y-3 rounded border p-4">
-          <legend className="px-1 text-sm font-medium">Profil Bisnis</legend>
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">Profil Bisnis</legend>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Nama Bisnis</label>
+            <Field label="Nama Bisnis">
               <input
                 name="businessName"
                 defaultValue={profile.businessName}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Nama Pemilik</label>
-              <input
-                name="ownerName"
-                defaultValue={profile.ownerName}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Email</label>
+            </Field>
+            <Field label="Nama Pemilik">
+              <input name="ownerName" defaultValue={profile.ownerName} className={inputClass} />
+            </Field>
+            <Field label="Email">
               <input
                 name="email"
                 type="email"
                 defaultValue={profile.email}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Telepon</label>
-              <input
-                name="phone"
-                defaultValue={profile.phone}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-            </div>
+            </Field>
+            <Field label="Telepon">
+              <input name="phone" defaultValue={profile.phone} className={inputClass} />
+            </Field>
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Alamat</label>
+          <Field label="Alamat">
             <textarea
               name="address"
               defaultValue={profile.address}
               rows={2}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={inputClass}
             />
-          </div>
+          </Field>
         </fieldset>
 
-        <fieldset className="space-y-3 rounded border p-4">
-          <legend className="px-1 text-sm font-medium">Rekening Bank</legend>
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">Rekening Bank</legend>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Nama Bank</label>
+            <Field label="Nama Bank">
               <input
                 name="bankName"
                 defaultValue={profile.bankName ?? ""}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Atas Nama</label>
+            </Field>
+            <Field label="Atas Nama">
               <input
                 name="bankAccountName"
                 defaultValue={profile.bankAccountName ?? ""}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">No. Rekening</label>
+            </Field>
+            <Field label="No. Rekening">
               <input
                 name="bankAccountNumber"
                 defaultValue={profile.bankAccountNumber ?? ""}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Cabang</label>
+            </Field>
+            <Field label="Cabang">
               <input
                 name="bankBranch"
                 defaultValue={profile.bankBranch ?? ""}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
+            </Field>
           </div>
         </fieldset>
 
-        <fieldset className="space-y-3 rounded border p-4">
-          <legend className="px-1 text-sm font-medium">Preferensi Invoice</legend>
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">Preferensi Invoice</legend>
           <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Prefix No. Invoice</label>
+            <Field label="Prefix No. Invoice">
               <input
                 name="invoicePrefix"
                 defaultValue={profile.invoicePrefix}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Default Theme</label>
+            </Field>
+            <Field label="Default Theme">
               <select
                 name="defaultTheme"
                 defaultValue={profile.defaultTheme}
-                className="w-full rounded border px-3 py-2 text-sm"
+                className={inputClass}
               >
                 <option value="MODERN_BOLD">Modern Bold</option>
                 <option value="MINIMAL_CLEAN">Minimal Clean</option>
                 <option value="CLASSIC_PROFESSIONAL">Classic Professional</option>
               </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm text-slate-600">Currency</label>
-              <input
-                name="currency"
-                defaultValue={profile.currency}
-                className="w-full rounded border px-3 py-2 text-sm"
-              />
-            </div>
+            </Field>
+            <Field label="Currency">
+              <input name="currency" defaultValue={profile.currency} className={inputClass} />
+            </Field>
           </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">
-              Default Catatan / Terms & Conditions
-            </label>
+          <Field label="Default Catatan / Terms & Conditions">
             <textarea
               name="defaultTerms"
               defaultValue={profile.defaultTerms ?? ""}
               rows={3}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={inputClass}
             />
-          </div>
+          </Field>
         </fieldset>
 
-        <button
-          type="submit"
-          className="rounded bg-slate-900 px-4 py-2 text-sm text-white"
-        >
-          Simpan
-        </button>
+        <Button type="submit">Simpan</Button>
       </form>
     </div>
   );

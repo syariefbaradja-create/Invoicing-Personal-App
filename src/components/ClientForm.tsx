@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Client } from "@prisma/client";
+import { Field, inputClass } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
 
 export function ClientForm({
   client,
@@ -19,58 +21,36 @@ export function ClientForm({
         await action(formData);
         setPending(false);
       }}
-      className="max-w-md space-y-4"
+      className="max-w-md space-y-4 rounded-lg border border-border bg-card p-5"
     >
-      <div>
-        <label className="mb-1 block text-sm text-slate-600">Nama *</label>
-        <input
-          name="name"
-          required
-          defaultValue={client?.name}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm text-slate-600">Perusahaan</label>
-        <input
-          name="company"
-          defaultValue={client?.company ?? ""}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm text-slate-600">Email</label>
+      <Field label="Nama" required>
+        <input name="name" required defaultValue={client?.name} className={inputClass} />
+      </Field>
+      <Field label="Perusahaan">
+        <input name="company" defaultValue={client?.company ?? ""} className={inputClass} />
+      </Field>
+      <Field label="Email">
         <input
           name="email"
           type="email"
           defaultValue={client?.email ?? ""}
-          className="w-full rounded border px-3 py-2 text-sm"
+          className={inputClass}
         />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm text-slate-600">No. Telepon</label>
-        <input
-          name="phone"
-          defaultValue={client?.phone ?? ""}
-          className="w-full rounded border px-3 py-2 text-sm"
-        />
-      </div>
-      <div>
-        <label className="mb-1 block text-sm text-slate-600">Alamat</label>
+      </Field>
+      <Field label="No. Telepon">
+        <input name="phone" defaultValue={client?.phone ?? ""} className={inputClass} />
+      </Field>
+      <Field label="Alamat">
         <textarea
           name="address"
           defaultValue={client?.address ?? ""}
-          className="w-full rounded border px-3 py-2 text-sm"
+          className={inputClass}
           rows={3}
         />
-      </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
+      </Field>
+      <Button type="submit" disabled={pending}>
         {pending ? "Menyimpan..." : "Simpan"}
-      </button>
+      </Button>
     </form>
   );
 }

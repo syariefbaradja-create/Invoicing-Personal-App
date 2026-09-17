@@ -51,24 +51,24 @@ function formatDate(d: Date) {
 }
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: "Helvetica", color: "#1C1F26" },
+  page: { padding: 40, fontSize: 10, fontFamily: "Helvetica", color: "#0F172A" },
   headerRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 24 },
-  businessName: { fontSize: 16, fontWeight: 700 },
-  muted: { color: "#6B7280" },
-  invoiceTitle: { fontSize: 20, fontWeight: 700, textAlign: "right" },
+  businessName: { fontSize: 16, fontWeight: 700, color: "#1E3A5F" },
+  muted: { color: "#64748B" },
+  invoiceTitle: { fontSize: 20, fontWeight: 700, textAlign: "right", color: "#1E3A5F" },
   section: { marginBottom: 20 },
-  label: { color: "#6B7280", fontSize: 9, marginBottom: 2 },
+  label: { color: "#64748B", fontSize: 9, marginBottom: 2 },
   row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 24 },
   table: { marginBottom: 20 },
   tableHeader: {
     flexDirection: "row",
-    borderBottom: "1px solid #1C1F26",
+    borderBottom: "1.5px solid #1E3A5F",
     paddingBottom: 4,
     marginBottom: 4,
   },
   tableRow: {
     flexDirection: "row",
-    borderBottom: "1px solid #E5E7EB",
+    borderBottom: "1px solid #E4E7EB",
     paddingVertical: 4,
   },
   colDesc: { flex: 3 },
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   totalsFinal: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderTop: "1px solid #1C1F26",
+    borderTop: "1.5px solid #1E3A5F",
     paddingTop: 4,
     fontWeight: 700,
   },

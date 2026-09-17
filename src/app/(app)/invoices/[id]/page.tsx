@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FilePdf, Copy, Trash } from "@phosphor-icons/react/dist/ssr";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { getClients } from "@/lib/actions/clients";
 import {
@@ -9,6 +9,8 @@ import {
   duplicateInvoice,
   type InvoiceInput,
 } from "@/lib/actions/invoices";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { LinkButton, Button } from "@/components/ui/Button";
 
 export default async function InvoiceDetailPage({
   params,
@@ -28,30 +30,31 @@ export default async function InvoiceDetailPage({
   const duplicateWithId = duplicateInvoice.bind(null, id);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">{invoice.number}</h1>
-          <p className="text-sm text-slate-500">{invoice.client.name}</p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href={`/invoices/${id}/pdf`}
-            target="_blank"
-            className="rounded border px-3 py-2 text-sm"
-          >
-            Export PDF
-          </Link>
-          <form action={duplicateWithId}>
-            <button className="rounded border px-3 py-2 text-sm">Duplicate</button>
-          </form>
-          <form action={deleteWithId}>
-            <button className="rounded border px-3 py-2 text-sm text-red-600">
-              Hapus
-            </button>
-          </form>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title={invoice.number}
+        subtitle={invoice.client.name}
+        action={
+          <div className="flex gap-2">
+            <LinkButton href={`/invoices/${id}/pdf`} target="_blank" variant="secondary">
+              <FilePdf size={16} aria-hidden="true" />
+              Export PDF
+            </LinkButton>
+            <form action={duplicateWithId}>
+              <Button type="submit" variant="secondary">
+                <Copy size={16} aria-hidden="true" />
+                Duplicate
+              </Button>
+            </form>
+            <form action={deleteWithId}>
+              <Button type="submit" variant="destructive">
+                <Trash size={16} aria-hidden="true" />
+                Hapus
+              </Button>
+            </form>
+          </div>
+        }
+      />
 
       <InvoiceEditor
         clients={clients}

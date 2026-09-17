@@ -2,8 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, Trash, X } from "@phosphor-icons/react/dist/ssr";
 import { calculateInvoiceTotals, formatCurrency } from "@/lib/invoice";
 import type { InvoiceInput, InvoiceItemInput } from "@/lib/actions/invoices";
+import { Field, inputClass } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
 
 type ClientOption = { id: string; name: string; company: string | null };
 
@@ -34,6 +37,7 @@ function inTwoWeeksISO() {
 }
 
 const emptyItem: InvoiceItemInput = { description: "", qty: 1, unitPrice: 0 };
+const selectClass = inputClass;
 
 export function InvoiceEditor({
   clients,
@@ -115,16 +119,15 @@ export function InvoiceEditor({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-8">
+    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
       {/* Left: form */}
-      <div className="space-y-5">
-        <div>
-          <label className="mb-1 block text-sm text-slate-600">Klien *</label>
+      <div className="space-y-5 rounded-lg border border-border bg-card p-5">
+        <Field label="Klien" required>
           <select
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className={selectClass}
           >
             <option value="" disabled>
               Pilih klien
@@ -136,66 +139,63 @@ export function InvoiceEditor({
               </option>
             ))}
           </select>
-        </div>
+        </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Tanggal Terbit</label>
+          <Field label="Tanggal Terbit">
             <input
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={inputClass}
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Jatuh Tempo</label>
+          </Field>
+          <Field label="Jatuh Tempo">
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={inputClass}
             />
-          </div>
+          </Field>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Status</label>
+          <Field label="Status">
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as typeof status)}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={selectClass}
             >
               <option value="DRAFT">Draft</option>
               <option value="SENT">Terkirim</option>
               <option value="PAID">Lunas</option>
               <option value="UNPAID">Belum Lunas</option>
             </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Theme</label>
+          </Field>
+          <Field label="Theme">
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as typeof theme)}
-              className="w-full rounded border px-3 py-2 text-sm"
+              className={selectClass}
             >
               <option value="MODERN_BOLD">Modern Bold</option>
               <option value="MINIMAL_CLEAN">Minimal Clean</option>
               <option value="CLASSIC_PROFESSIONAL">Classic Professional</option>
             </select>
-          </div>
+          </Field>
         </div>
 
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm text-slate-600">Item</label>
+            <span className="text-sm font-medium text-foreground">Item</span>
             <button
               type="button"
               onClick={addItem}
-              className="text-sm text-slate-900 underline"
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-primary hover:underline"
             >
-              + Tambah Item
+              <Plus size={14} weight="bold" aria-hidden="true" />
+              Tambah Item
             </button>
           </div>
           <div className="space-y-2">
@@ -205,7 +205,7 @@ export function InvoiceEditor({
                   placeholder="Deskripsi jasa"
                   value={item.description}
                   onChange={(e) => updateItem(i, { description: e.target.value })}
-                  className="flex-1 rounded border px-2 py-1.5 text-sm"
+                  className={`${inputClass} flex-1 py-1.5`}
                 />
                 <input
                   type="number"
@@ -214,7 +214,7 @@ export function InvoiceEditor({
                   placeholder="Qty"
                   value={item.qty}
                   onChange={(e) => updateItem(i, { qty: Number(e.target.value) })}
-                  className="w-16 rounded border px-2 py-1.5 text-sm"
+                  className={`${inputClass} w-16 py-1.5`}
                 />
                 <input
                   type="number"
@@ -223,15 +223,16 @@ export function InvoiceEditor({
                   placeholder="Harga satuan"
                   value={item.unitPrice}
                   onChange={(e) => updateItem(i, { unitPrice: Number(e.target.value) })}
-                  className="w-32 rounded border px-2 py-1.5 text-sm"
+                  className={`${inputClass} w-32 py-1.5`}
                 />
                 <button
                   type="button"
                   onClick={() => removeItem(i)}
                   disabled={items.length === 1}
-                  className="text-sm text-red-600 disabled:opacity-30"
+                  aria-label="Hapus item"
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-30"
                 >
-                  Hapus
+                  <Trash size={16} aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -239,13 +240,12 @@ export function InvoiceEditor({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Diskon</label>
+          <Field label="Diskon">
             <div className="flex gap-2">
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as typeof discountType)}
-                className="rounded border px-2 py-2 text-sm"
+                className={`${selectClass} w-24`}
               >
                 <option value="">Tidak ada</option>
                 <option value="PERCENT">%</option>
@@ -257,17 +257,17 @@ export function InvoiceEditor({
                 value={discountValue}
                 onChange={(e) => setDiscountValue(Number(e.target.value))}
                 disabled={!discountType}
-                className="w-full rounded border px-2 py-2 text-sm disabled:opacity-50"
+                className={`${inputClass} disabled:opacity-50`}
               />
             </div>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-slate-600">Pajak/PPN</label>
+          </Field>
+          <Field label="Pajak/PPN">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={taxEnabled}
                 onChange={(e) => setTaxEnabled(e.target.checked)}
+                className="h-4 w-4 shrink-0 rounded border-border accent-primary"
               />
               <input
                 type="number"
@@ -276,116 +276,128 @@ export function InvoiceEditor({
                 onChange={(e) => setTaxRate(Number(e.target.value))}
                 disabled={!taxEnabled}
                 placeholder="% pajak"
-                className="w-full rounded border px-2 py-2 text-sm disabled:opacity-50"
+                className={`${inputClass} disabled:opacity-50`}
               />
             </div>
-          </div>
+          </Field>
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm text-slate-600">
-            Catatan / Terms & Conditions
-          </label>
+        <Field label="Catatan / Terms & Conditions">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full rounded border px-3 py-2 text-sm"
+            className={inputClass}
           />
-        </div>
+        </Field>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <p className="flex items-center gap-1.5 text-sm text-destructive">
+            <X size={14} aria-hidden="true" />
+            {error}
+          </p>
+        )}
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded bg-slate-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
+        <div className="flex gap-2 pt-1">
+          <Button type="submit" disabled={pending}>
             {pending ? "Menyimpan..." : "Simpan"}
-          </button>
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="rounded border px-4 py-2 text-sm"
-          >
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => router.back()}>
             Batal
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Right: live preview */}
-      <div className="rounded border bg-white p-6">
-        <div className="mb-6 flex items-start justify-between">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="mb-6 flex items-start justify-between border-b border-border pb-5">
           <div>
-            <div className="text-lg font-semibold">INVOICE</div>
-            <div className="text-sm text-slate-500">{theme.replace("_", " ")}</div>
+            <div className="text-lg font-bold tracking-tight text-primary">INVOICE</div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              {theme.replace("_", " ")}
+            </div>
           </div>
-          <div className="text-right text-sm">
+          <div className="text-right text-sm text-muted-foreground">
             <div>Terbit: {issueDate}</div>
             <div>Jatuh Tempo: {dueDate}</div>
           </div>
         </div>
 
         <div className="mb-6">
-          <div className="text-sm text-slate-500">Ditagihkan kepada</div>
-          <div className="font-medium">{selectedClient?.name || "-"}</div>
-          <div className="text-sm text-slate-500">{selectedClient?.company}</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Ditagihkan kepada
+          </div>
+          <div className="mt-1 font-semibold text-foreground">{selectedClient?.name || "-"}</div>
+          <div className="text-sm text-muted-foreground">{selectedClient?.company}</div>
         </div>
 
-        <table className="mb-4 w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-slate-500">
-              <th className="py-1">Deskripsi</th>
-              <th className="py-1 text-right">Qty</th>
-              <th className="py-1 text-right">Harga</th>
-              <th className="py-1 text-right">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, i) => (
-              <tr key={i} className="border-b">
-                <td className="py-1">{item.description || "-"}</td>
-                <td className="py-1 text-right tabular-nums">{item.qty}</td>
-                <td className="py-1 text-right tabular-nums">
-                  {formatCurrency(item.unitPrice, currency)}
-                </td>
-                <td className="py-1 text-right tabular-nums">
-                  {formatCurrency(item.qty * item.unitPrice, currency)}
-                </td>
+        <div className="mb-4 overflow-x-auto">
+          <table className="w-full min-w-[440px] table-fixed text-sm">
+            <colgroup>
+              <col className="w-[40%]" />
+              <col className="w-[12%]" />
+              <col className="w-[24%]" />
+              <col className="w-[24%]" />
+            </colgroup>
+            <thead>
+              <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <th className="pb-2">Deskripsi</th>
+                <th className="pb-2 text-right">Qty</th>
+                <th className="pb-2 text-right">Harga</th>
+                <th className="pb-2 text-right">Subtotal</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {items.map((item, i) => (
+                <tr key={i} className="border-b border-border align-top last:border-0">
+                  <td className="py-1.5 pr-2 break-words text-foreground">
+                    {item.description || "-"}
+                  </td>
+                  <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
+                    {item.qty}
+                  </td>
+                  <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
+                    {formatCurrency(item.unitPrice, currency)}
+                  </td>
+                  <td className="py-1.5 pl-1 text-right font-medium tabular-nums text-foreground">
+                    {formatCurrency(item.qty * item.unitPrice, currency)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="ml-auto max-w-[240px] space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-500">Subtotal</span>
+        <div className="ml-auto max-w-[240px] space-y-1.5 text-sm">
+          <div className="flex justify-between text-muted-foreground">
+            <span>Subtotal</span>
             <span className="tabular-nums">{formatCurrency(totals.subtotal, currency)}</span>
           </div>
           {totals.discountAmount > 0 && (
-            <div className="flex justify-between">
-              <span className="text-slate-500">Diskon</span>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Diskon</span>
               <span className="tabular-nums">
                 -{formatCurrency(totals.discountAmount, currency)}
               </span>
             </div>
           )}
           {totals.taxAmount > 0 && (
-            <div className="flex justify-between">
-              <span className="text-slate-500">Pajak</span>
+            <div className="flex justify-between text-muted-foreground">
+              <span>Pajak</span>
               <span className="tabular-nums">{formatCurrency(totals.taxAmount, currency)}</span>
             </div>
           )}
-          <div className="flex justify-between border-t pt-1 font-semibold">
+          <div className="flex justify-between border-t border-border pt-1.5 text-base font-semibold text-foreground">
             <span>Total</span>
             <span className="tabular-nums">{formatCurrency(totals.total, currency)}</span>
           </div>
         </div>
 
         {notes && (
-          <div className="mt-6 text-sm text-slate-500">
-            <div className="mb-1 font-medium text-slate-700">Catatan</div>
+          <div className="mt-6 border-t border-border pt-4 text-sm text-muted-foreground">
+            <div className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground">
+              Catatan
+            </div>
             {notes}
           </div>
         )}
