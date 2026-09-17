@@ -1,6 +1,14 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
-import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import {
+  formatMoney,
+  formatDate,
+  resolveFontFamilies,
+  resolveMargin,
+  resolvePageSize,
+  type ThemeTemplateProps,
+} from "../types";
 import { terbilangRupiah } from "@/lib/invoice";
+import { Watermark } from "../Watermark";
 
 const BORDER = "#64748B";
 
@@ -12,9 +20,10 @@ export function ClassicProfessionalTemplate({
 }: ThemeTemplateProps) {
   const primary = profile.primaryColor;
   const font = resolveFontFamilies(profile.fontChoice);
+  const margin = resolveMargin(profile.pdfMargin, 36);
 
   const styles = StyleSheet.create({
-    page: { padding: 36, fontSize: 10, fontFamily: font.regular, color: "#1E293B" },
+    page: { padding: margin, fontSize: 10, fontFamily: font.regular, color: "#1E293B" },
     outerBorder: { border: `1px solid ${BORDER}`, padding: 24, minHeight: "100%" },
     headerRow: {
       flexDirection: "row",
@@ -101,7 +110,10 @@ export function ClassicProfessionalTemplate({
   });
 
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size={resolvePageSize(profile.pdfPageSize)} style={styles.page}>
+      {profile.watermarkEnabled && profile.watermarkText && (
+        <Watermark text={profile.watermarkText} />
+      )}
       <View style={styles.outerBorder}>
         <View style={styles.headerRow}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>

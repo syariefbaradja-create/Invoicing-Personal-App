@@ -1,13 +1,22 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
-import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import {
+  formatMoney,
+  formatDate,
+  resolveFontFamilies,
+  resolveMargin,
+  resolvePageSize,
+  type ThemeTemplateProps,
+} from "../types";
 import { terbilangRupiah } from "@/lib/invoice";
+import { Watermark } from "../Watermark";
 
 export function MinimalCleanTemplate({ invoice, profile, logoSrc, signatureSrc }: ThemeTemplateProps) {
   const accent = profile.accentColor;
   const font = resolveFontFamilies(profile.fontChoice);
+  const margin = resolveMargin(profile.pdfMargin, 56);
 
   const styles = StyleSheet.create({
-    page: { padding: 56, fontSize: 10, fontFamily: font.regular, color: "#1F2937" },
+    page: { padding: margin, fontSize: 10, fontFamily: font.regular, color: "#1F2937" },
     headerRow: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -80,7 +89,10 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc, signatureSrc }
   });
 
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size={resolvePageSize(profile.pdfPageSize)} style={styles.page}>
+      {profile.watermarkEnabled && profile.watermarkText && (
+        <Watermark text={profile.watermarkText} />
+      )}
       <View style={styles.headerRow}>
         <View>
           {logoSrc && <Image src={logoSrc} style={styles.logo} />}

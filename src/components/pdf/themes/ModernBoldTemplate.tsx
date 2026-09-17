@@ -1,17 +1,26 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
-import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import {
+  formatMoney,
+  formatDate,
+  resolveFontFamilies,
+  resolveMargin,
+  resolvePageSize,
+  type ThemeTemplateProps,
+} from "../types";
 import { terbilangRupiah } from "@/lib/invoice";
+import { Watermark } from "../Watermark";
 
 export function ModernBoldTemplate({ invoice, profile, logoSrc, signatureSrc }: ThemeTemplateProps) {
   const primary = profile.primaryColor;
   const accent = profile.accentColor;
   const font = resolveFontFamilies(profile.fontChoice);
+  const margin = resolveMargin(profile.pdfMargin, 40);
 
   const styles = StyleSheet.create({
     page: { fontSize: 10, fontFamily: font.regular, color: "#0F172A" },
     headerBand: {
       backgroundColor: primary,
-      paddingHorizontal: 40,
+      paddingHorizontal: margin,
       paddingVertical: 28,
       flexDirection: "row",
       justifyContent: "space-between",
@@ -23,7 +32,7 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc, signatureSrc }: 
     headerMuted: { color: "#CBD5E1", fontSize: 9, marginTop: 1 },
     invoiceTitle: { fontSize: 22, fontFamily: font.bold, textAlign: "right", color: "#FFFFFF" },
     invoiceNumber: { textAlign: "right", color: "#CBD5E1", marginTop: 2, fontSize: 10 },
-    body: { paddingHorizontal: 40, paddingBottom: 40 },
+    body: { paddingHorizontal: margin, paddingBottom: 40 },
     muted: { color: "#64748B" },
     section: { marginBottom: 20 },
     label: { color: "#64748B", fontSize: 9, marginBottom: 2, letterSpacing: 0.5 },
@@ -71,7 +80,10 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc, signatureSrc }: 
   });
 
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size={resolvePageSize(profile.pdfPageSize)} style={styles.page}>
+      {profile.watermarkEnabled && profile.watermarkText && (
+        <Watermark text={profile.watermarkText} />
+      )}
       <View style={styles.headerBand}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           {logoSrc && <Image src={logoSrc} style={styles.logo} />}

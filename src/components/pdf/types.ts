@@ -45,6 +45,10 @@ export type PdfProfile = {
   primaryColor: string;
   accentColor: string;
   fontChoice: string;
+  pdfPageSize: string;
+  pdfMargin: string;
+  watermarkEnabled: boolean;
+  watermarkText: string | null;
 };
 
 export type ThemeTemplateProps = {
@@ -70,6 +74,23 @@ const FONT_FAMILIES: Record<string, { regular: string; bold: string; italic: str
 
 export function resolveFontFamilies(fontChoice: string) {
   return FONT_FAMILIES[fontChoice] ?? FONT_FAMILIES.Helvetica;
+}
+
+const MARGIN_MULTIPLIER: Record<string, number> = {
+  NARROW: 0.6,
+  NORMAL: 1,
+  WIDE: 1.5,
+};
+
+/** Scales a theme's own base padding by the user's margin preset, so each
+ * theme keeps its relative character (Minimal Clean stays airier than
+ * Classic Professional) while still responding to the global margin knob. */
+export function resolveMargin(preset: string, basePx: number) {
+  return Math.round(basePx * (MARGIN_MULTIPLIER[preset] ?? 1));
+}
+
+export function resolvePageSize(pageSize: string): "A4" | "LETTER" | "LEGAL" {
+  return pageSize === "LETTER" || pageSize === "LEGAL" ? pageSize : "A4";
 }
 
 export function formatDate(d: Date) {

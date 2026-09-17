@@ -44,13 +44,14 @@ Sudah jalan:
 - [x] Attachments per invoice — upload PDF/gambar (maks 5MB) di halaman invoice, bisa didownload dari halaman detail maupun share link publik
 - [x] Recurring invoice — tandai invoice sebagai template (mingguan/bulanan/tiap 3 bulan/tahunan), draft baru otomatis dibuat begitu jatuh temponya lewat (dicek tiap kali Dashboard dibuka — tidak perlu cron server terpisah)
 - [x] Payment tracking parsial — catat pembayaran bertahap (Amount Received, Transaction Charge, metode, tanggal), progress bar "Rp X Collected / Rp Y Due" di invoice & halaman share publik, status otomatis jadi Lunas begitu terkumpul penuh
+- [x] Layout PDF lanjutan (dari Fase 3) — ukuran halaman (A4/Letter/Legal), margin (Sempit/Normal/Lebar, skala proporsional per theme), watermark diagonal dengan teks custom (mis. "DRAFT"), semua diatur global di Settings
 
-Fase 1 dan sebagian besar Fase 2 dari roadmap Refrens (lihat memory project) sudah selesai. Belum dikerjakan (di luar scope sesi ini):
+Fase 1 dan sebagian besar Fase 2 dari roadmap Refrens (lihat memory project) sudah selesai, plus satu item Fase 3 (layout PDF lanjutan) yang kompleksitasnya rendah. Belum dikerjakan (di luar scope sesi ini):
 
 - [ ] Reminder email (butuh layanan pengirim email — SMTP/Resend/dll — belum disiapkan)
 - [ ] Backup database otomatis terjadwal (saat ini manual via halaman Settings → Export Data)
 - [ ] Logo/signature SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
-- [ ] Custom formula columns, payment gateway, approval workflow (Fase 3 — sengaja ditunda, lihat dokumen roadmap)
+- [ ] Custom formula columns, payment gateway, approval workflow, audit trail, credit/debit note, early-pay discount (sisa Fase 3 — sengaja ditunda, lihat dokumen roadmap)
 
 ## Catatan teknis
 

@@ -187,6 +187,48 @@ export default async function SettingsPage() {
           />
         </fieldset>
 
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">
+            Layout PDF Lanjutan
+          </legend>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Ukuran Halaman">
+              <select name="pdfPageSize" defaultValue={profile.pdfPageSize} className={inputClass}>
+                <option value="A4">A4</option>
+                <option value="LETTER">Letter</option>
+                <option value="LEGAL">Legal</option>
+              </select>
+            </Field>
+            <Field label="Margin">
+              <select name="pdfMargin" defaultValue={profile.pdfMargin} className={inputClass}>
+                <option value="NARROW">Sempit</option>
+                <option value="NORMAL">Normal</option>
+                <option value="WIDE">Lebar</option>
+              </select>
+            </Field>
+          </div>
+
+          <div className="border-t border-border pt-3">
+            <label className="mb-2 flex items-center gap-2 text-sm text-foreground">
+              <input
+                type="checkbox"
+                name="watermarkEnabled"
+                defaultChecked={profile.watermarkEnabled}
+                className="h-4 w-4 rounded border-border accent-primary"
+              />
+              Tampilkan watermark di PDF
+            </label>
+            <Field label="Teks Watermark">
+              <input
+                name="watermarkText"
+                defaultValue={profile.watermarkText ?? ""}
+                placeholder="mis. DRAFT, COPY, LUNAS"
+                className={inputClass}
+              />
+            </Field>
+          </div>
+        </fieldset>
+
         <Button type="submit">Simpan</Button>
       </form>
 

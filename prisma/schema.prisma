@@ -29,6 +29,10 @@ model BusinessProfile {
   invoiceSeqYear     Int      @default(0)
   defaultTerms       String?
   currency           String   @default("IDR")
+  pdfPageSize        String   @default("A4")
+  pdfMargin          String   @default("NORMAL")
+  watermarkEnabled   Boolean  @default(false)
+  watermarkText      String?
   updatedAt          DateTime @updatedAt
 }
 
