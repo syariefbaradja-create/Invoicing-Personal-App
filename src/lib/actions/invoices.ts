@@ -264,6 +264,7 @@ export async function getInvoice(id: string) {
       client: true,
       items: { orderBy: { position: "asc" } },
       charges: { orderBy: { position: "asc" } },
+      attachments: { orderBy: { createdAt: "asc" } },
     },
   });
 }
@@ -275,6 +276,7 @@ export async function getInvoiceByPublicToken(token: string) {
       client: true,
       items: { orderBy: { position: "asc" } },
       charges: { orderBy: { position: "asc" } },
+      attachments: { orderBy: { createdAt: "asc" } },
     },
   });
 }

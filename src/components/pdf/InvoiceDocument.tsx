@@ -14,13 +14,13 @@ type InvoiceDocumentProps = ThemeTemplateProps & {
   invoice: ThemeTemplateProps["invoice"] & { theme?: string };
 };
 
-export function InvoiceDocument({ invoice, profile, logoSrc }: InvoiceDocumentProps) {
+export function InvoiceDocument({ invoice, profile, logoSrc, signatureSrc }: InvoiceDocumentProps) {
   const Template =
     TEMPLATES[invoice.theme as keyof typeof TEMPLATES] ?? ModernBoldTemplate;
 
   return (
     <Document title={`Invoice ${invoice.number}`}>
-      <Template invoice={invoice} profile={profile} logoSrc={logoSrc} />
+      <Template invoice={invoice} profile={profile} logoSrc={logoSrc} signatureSrc={signatureSrc} />
     </Document>
   );
 }

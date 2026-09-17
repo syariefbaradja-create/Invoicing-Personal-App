@@ -11,44 +11,66 @@ export async function getSettings() {
   return getOrCreateBusinessProfile();
 }
 
-const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
-const MAX_LOGO_SIZE = 2 * 1024 * 1024; // 2MB
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
 
-async function removeUploadedFile(logoUrl: string | null) {
-  if (!logoUrl?.startsWith("/uploads/")) return;
+async function removeUploadedFile(url: string | null) {
+  if (!url?.startsWith("/uploads/")) return;
   try {
-    await unlink(path.join(process.cwd(), "public", logoUrl));
+    await unlink(path.join(process.cwd(), "public", url));
   } catch {
     // file already gone, ignore
   }
 }
 
+async function processImageField(
+  formData: FormData,
+  opts: { fieldName: string; removeFieldName: string; currentUrl: string | null; prefix: string }
+): Promise<string | null> {
+  const remove = formData.get(opts.removeFieldName) === "on";
+  const file = formData.get(opts.fieldName);
+
+  if (remove) {
+    await removeUploadedFile(opts.currentUrl);
+    return null;
+  }
+
+  if (file instanceof File && file.size > 0) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      throw new Error("Format gambar harus PNG, JPG, WEBP, atau SVG");
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      throw new Error("Ukuran gambar maksimal 2MB");
+    }
+
+    await removeUploadedFile(opts.currentUrl);
+
+    const ext = file.type === "image/svg+xml" ? "svg" : file.type.split("/")[1];
+    const filename = `${opts.prefix}-${Date.now()}.${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(path.join(process.cwd(), "public", "uploads", filename), buffer);
+    return `/uploads/${filename}`;
+  }
+
+  return opts.currentUrl;
+}
+
 export async function updateSettings(formData: FormData) {
   const profile = await getOrCreateBusinessProfile();
 
-  let logoUrl = profile.logoUrl;
-  const removeLogo = formData.get("removeLogo") === "on";
-  const logoFile = formData.get("logo");
+  const logoUrl = await processImageField(formData, {
+    fieldName: "logo",
+    removeFieldName: "removeLogo",
+    currentUrl: profile.logoUrl,
+    prefix: "logo",
+  });
 
-  if (removeLogo) {
-    await removeUploadedFile(logoUrl);
-    logoUrl = null;
-  } else if (logoFile instanceof File && logoFile.size > 0) {
-    if (!ALLOWED_LOGO_TYPES.includes(logoFile.type)) {
-      throw new Error("Format logo harus PNG, JPG, WEBP, atau SVG");
-    }
-    if (logoFile.size > MAX_LOGO_SIZE) {
-      throw new Error("Ukuran logo maksimal 2MB");
-    }
-
-    await removeUploadedFile(logoUrl);
-
-    const ext = logoFile.type === "image/svg+xml" ? "svg" : logoFile.type.split("/")[1];
-    const filename = `logo-${Date.now()}.${ext}`;
-    const buffer = Buffer.from(await logoFile.arrayBuffer());
-    await writeFile(path.join(process.cwd(), "public", "uploads", filename), buffer);
-    logoUrl = `/uploads/${filename}`;
-  }
+  const signatureUrl = await processImageField(formData, {
+    fieldName: "signature",
+    removeFieldName: "removeSignature",
+    currentUrl: profile.signatureUrl,
+    prefix: "signature",
+  });
 
   await prisma.businessProfile.update({
     where: { id: profile.id },
@@ -70,6 +92,7 @@ export async function updateSettings(formData: FormData) {
       accentColor: String(formData.get("accentColor") ?? "#059669"),
       fontChoice: String(formData.get("fontChoice") ?? "Helvetica"),
       logoUrl,
+      signatureUrl,
     },
   });
 

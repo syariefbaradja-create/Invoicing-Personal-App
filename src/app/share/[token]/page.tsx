@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { FilePdf, Receipt } from "@phosphor-icons/react/dist/ssr";
+import { FilePdf, Receipt, Paperclip, FileImage } from "@phosphor-icons/react/dist/ssr";
 import { getInvoiceByPublicToken } from "@/lib/actions/invoices";
 import { getSettings } from "@/lib/actions/settings";
 import { formatCurrency, isOverdue, terbilangRupiah } from "@/lib/invoice";
@@ -151,6 +151,33 @@ export default async function PublicInvoicePage({
                 Catatan
               </div>
               {invoice.notes}
+            </div>
+          )}
+
+          {invoice.attachments.length > 0 && (
+            <div className="mt-6 border-t border-border pt-4">
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-foreground">
+                <Paperclip size={14} aria-hidden="true" />
+                Lampiran
+              </div>
+              <ul className="space-y-1">
+                {invoice.attachments.map((att) => {
+                  const Icon = att.mimeType === "application/pdf" ? FilePdf : FileImage;
+                  return (
+                    <li key={att.id}>
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-primary hover:underline"
+                      >
+                        <Icon size={16} className="shrink-0" aria-hidden="true" />
+                        {att.filename}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           )}
 

@@ -2,7 +2,7 @@ import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
 import { terbilangRupiah } from "@/lib/invoice";
 
-export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
+export function MinimalCleanTemplate({ invoice, profile, logoSrc, signatureSrc }: ThemeTemplateProps) {
   const accent = profile.accentColor;
   const font = resolveFontFamilies(profile.fontChoice);
 
@@ -73,6 +73,10 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
     footer: { marginTop: 32, fontSize: 8, color: "#D1D5DB", textAlign: "center" },
     itemDiscount: { fontSize: 7, color: "#D1D5DB", marginTop: 1 },
     terbilang: { fontSize: 8, fontFamily: font.italic, color: "#9CA3AF", marginTop: 6 },
+    signatureBlock: { alignSelf: "flex-end", alignItems: "center", marginBottom: 24 },
+    signatureImage: { width: 90, height: 45, objectFit: "contain", marginBottom: 4 },
+    signatureLine: { width: 130, borderBottom: "0.5px solid #E5E7EB", marginBottom: 4 },
+    signatureName: { fontSize: 8, color: "#9CA3AF" },
   });
 
   return (
@@ -184,6 +188,14 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
         <View>
           <Text style={styles.label}>CATATAN</Text>
           <Text style={styles.muted}>{invoice.notes}</Text>
+        </View>
+      )}
+
+      {signatureSrc && (
+        <View style={styles.signatureBlock}>
+          <Image src={signatureSrc} style={styles.signatureImage} />
+          <View style={styles.signatureLine} />
+          <Text style={styles.signatureName}>{profile.businessName || profile.ownerName}</Text>
         </View>
       )}
 

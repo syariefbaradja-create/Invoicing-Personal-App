@@ -51,6 +51,7 @@ export type ThemeTemplateProps = {
   invoice: PdfInvoice;
   profile: PdfProfile;
   logoSrc?: string | null;
+  signatureSrc?: string | null;
 };
 
 export function formatMoney(amount: number, currency: string) {

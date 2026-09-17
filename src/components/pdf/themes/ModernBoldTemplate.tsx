@@ -2,7 +2,7 @@ import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
 import { terbilangRupiah } from "@/lib/invoice";
 
-export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
+export function ModernBoldTemplate({ invoice, profile, logoSrc, signatureSrc }: ThemeTemplateProps) {
   const primary = profile.primaryColor;
   const accent = profile.accentColor;
   const font = resolveFontFamilies(profile.fontChoice);
@@ -64,6 +64,10 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
     footer: { marginTop: 20, fontSize: 9, color: "#94A3B8", textAlign: "center" },
     itemDiscount: { fontSize: 8, color: "#94A3B8" },
     terbilang: { fontSize: 9, fontFamily: font.italic, color: "#64748B", marginTop: 4 },
+    signatureBlock: { alignSelf: "flex-end", alignItems: "center", marginBottom: 20 },
+    signatureImage: { width: 100, height: 50, objectFit: "contain", marginBottom: 4 },
+    signatureLine: { width: 140, borderBottom: "1px solid #CBD5E1", marginBottom: 4 },
+    signatureName: { fontSize: 9, color: "#475569" },
   });
 
   return (
@@ -183,6 +187,14 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
           <View style={styles.section}>
             <Text style={styles.label}>CATATAN</Text>
             <Text>{invoice.notes}</Text>
+          </View>
+        )}
+
+        {signatureSrc && (
+          <View style={styles.signatureBlock}>
+            <Image src={signatureSrc} style={styles.signatureImage} />
+            <View style={styles.signatureLine} />
+            <Text style={styles.signatureName}>{profile.businessName || profile.ownerName}</Text>
           </View>
         )}
 

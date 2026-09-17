@@ -40,12 +40,13 @@ Sudah jalan:
 - [x] Diskon per-item (selain diskon level invoice, keduanya bisa dipakai bersamaan)
 - [x] Total terbilang (mis. "Empat Juta Enam Ratus Lima Puluh Ribu Rupiah") di preview, PDF, dan halaman publik — khusus currency IDR
 - [x] Shareable link publik (`/share/[token]`) — klien bisa buka & download PDF invoice tanpa login, link di-generate dari tombol "Share Link" di halaman invoice
+- [x] Tanda tangan digital — upload gambar signature di Settings, otomatis tampil di semua invoice PDF (raster only, sama seperti logo)
+- [x] Attachments per invoice — upload PDF/gambar (maks 5MB) di halaman invoice, bisa didownload dari halaman detail maupun share link publik
 
-Belum dikerjakan (di luar scope sesi ini) — lihat juga roadmap fitur Refrens yang belum diambil:
+Fase 1 dari roadmap Refrens (lihat memory project) sudah lengkap semua. Belum dikerjakan (di luar scope sesi ini):
 
 - [ ] Backup database otomatis terjadwal (saat ini manual via halaman Settings → Export Data)
-- [ ] Logo SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
-- [ ] Signature digital, attachments (sisa item Fase 1 dari roadmap Refrens)
+- [ ] Logo/signature SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
 - [ ] Recurring invoice, reminder email, payment tracking parsial (Fase 2)
 - [ ] Custom formula columns, payment gateway, approval workflow (Fase 3 — sengaja ditunda, lihat dokumen roadmap)
 

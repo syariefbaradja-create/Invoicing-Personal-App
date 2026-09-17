@@ -3,7 +3,7 @@ import { getSettings, updateSettings } from "@/lib/actions/settings";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Field, inputClass } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
-import { LogoUploadField } from "@/components/LogoUploadField";
+import { ImageUploadField } from "@/components/ImageUploadField";
 
 const EXPORT_LINKS = [
   { href: "/api/export?type=clients&format=csv", label: "Contacts (CSV)" },
@@ -22,7 +22,12 @@ export default async function SettingsPage() {
       <form action={updateSettings} className="space-y-6">
         <fieldset className="space-y-4 rounded-lg border border-border bg-card p-5">
           <legend className="px-1 text-sm font-semibold text-foreground">Profil Bisnis</legend>
-          <LogoUploadField currentLogoUrl={profile.logoUrl} />
+          <ImageUploadField
+            label="Logo Bisnis"
+            fieldName="logo"
+            removeFieldName="removeLogo"
+            currentUrl={profile.logoUrl}
+          />
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nama Bisnis">
               <input
@@ -163,6 +168,23 @@ export default async function SettingsPage() {
               </select>
             </Field>
           </div>
+        </fieldset>
+
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">
+            Tanda Tangan Digital
+          </legend>
+          <p className="text-sm text-muted-foreground">
+            Upload gambar tanda tangan — otomatis tampil di setiap invoice PDF.
+          </p>
+          <ImageUploadField
+            label="Signature"
+            fieldName="signature"
+            removeFieldName="removeSignature"
+            currentUrl={profile.signatureUrl}
+            previewClassName="h-16 w-32"
+            helpText="PNG/WEBP transparan disarankan. Maks 2MB."
+          />
         </fieldset>
 
         <Button type="submit">Simpan</Button>

@@ -4,7 +4,12 @@ import { terbilangRupiah } from "@/lib/invoice";
 
 const BORDER = "#64748B";
 
-export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
+export function ClassicProfessionalTemplate({
+  invoice,
+  profile,
+  logoSrc,
+  signatureSrc,
+}: ThemeTemplateProps) {
   const primary = profile.primaryColor;
   const font = resolveFontFamilies(profile.fontChoice);
 
@@ -89,6 +94,10 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
     },
     itemDiscount: { fontSize: 7.5, color: "#64748B" },
     terbilang: { fontSize: 8.5, fontFamily: font.italic, color: "#475569", marginTop: 5 },
+    signatureBlock: { alignSelf: "flex-end", alignItems: "center", marginBottom: 16 },
+    signatureImage: { width: 100, height: 50, objectFit: "contain", marginBottom: 4 },
+    signatureLine: { width: 140, borderBottom: `0.75px solid ${BORDER}`, marginBottom: 4 },
+    signatureName: { fontSize: 9, fontFamily: font.bold, color: "#475569" },
   });
 
   return (
@@ -214,6 +223,14 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
           <View style={styles.section}>
             <Text style={styles.label}>CATATAN</Text>
             <Text>{invoice.notes}</Text>
+          </View>
+        )}
+
+        {signatureSrc && (
+          <View style={styles.signatureBlock}>
+            <Image src={signatureSrc} style={styles.signatureImage} />
+            <View style={styles.signatureLine} />
+            <Text style={styles.signatureName}>{profile.businessName || profile.ownerName}</Text>
           </View>
         )}
 

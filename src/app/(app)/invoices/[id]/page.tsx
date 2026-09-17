@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { FilePdf, Copy, Trash } from "@phosphor-icons/react/dist/ssr";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
 import { ShareLinkButton } from "@/components/ShareLinkButton";
+import { InvoiceAttachments } from "@/components/InvoiceAttachments";
 import { getClients } from "@/lib/actions/clients";
 import {
   getInvoice,
@@ -11,6 +12,7 @@ import {
   getOrCreateShareLink,
   type InvoiceInput,
 } from "@/lib/actions/invoices";
+import { addAttachment, deleteAttachment } from "@/lib/actions/attachments";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LinkButton, Button } from "@/components/ui/Button";
 
@@ -89,6 +91,15 @@ export default async function InvoiceDetailPage({
         }}
         onSubmit={handleUpdate}
       />
+
+      <div className="mt-6">
+        <InvoiceAttachments
+          invoiceId={id}
+          attachments={invoice.attachments}
+          addAttachment={addAttachment}
+          deleteAttachment={deleteAttachment}
+        />
+      </div>
     </div>
   );
 }

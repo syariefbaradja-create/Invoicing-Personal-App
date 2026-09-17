@@ -15,6 +15,7 @@ model BusinessProfile {
   phone              String   @default("")
   address            String   @default("")
   logoUrl            String?
+  signatureUrl       String?
   bankName           String?
   bankAccountName    String?
   bankAccountNumber  String?
@@ -87,6 +88,7 @@ model Invoice {
   updatedAt      DateTime           @updatedAt
   items          InvoiceItem[]
   charges        AdditionalCharge[]
+  attachments    InvoiceAttachment[]
 
   @@index([clientId])
   @@index([status])
@@ -115,6 +117,19 @@ model AdditionalCharge {
   amount    Float   @default(0)
   isPercent Boolean @default(false)
   position  Int     @default(0)
+
+  @@index([invoiceId])
+}
+
+model InvoiceAttachment {
+  id        String   @id @default(cuid())
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId String
+  filename  String
+  url       String
+  size      Int
+  mimeType  String
+  createdAt DateTime @default(now())
 
   @@index([invoiceId])
 }
