@@ -1,5 +1,6 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import { terbilangRupiah } from "@/lib/invoice";
 
 const BORDER = "#64748B";
 
@@ -86,6 +87,8 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
       textAlign: "center",
       fontFamily: font.italic,
     },
+    itemDiscount: { fontSize: 7.5, color: "#64748B" },
+    terbilang: { fontSize: 8.5, fontFamily: font.italic, color: "#475569", marginTop: 5 },
   });
 
   return (
@@ -139,7 +142,14 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
           </View>
           {invoice.items.map((item, i) => (
             <View style={styles.tableRow} key={i}>
-              <Text style={[styles.colDesc, styles.cell]}>{item.description}</Text>
+              <View style={[styles.colDesc, styles.cell]}>
+                <Text>{item.description}</Text>
+                {item.discountType && (item.discountValue ?? 0) > 0 && (
+                  <Text style={styles.itemDiscount}>
+                    diskon {item.discountType === "PERCENT" ? `${item.discountValue}%` : formatMoney(item.discountValue ?? 0, invoice.currency)}
+                  </Text>
+                )}
+              </View>
               <Text style={[styles.colQty, styles.cell]}>{item.qty}</Text>
               <Text style={[styles.colPrice, styles.cell]}>
                 {formatMoney(item.unitPrice, invoice.currency)}
@@ -162,6 +172,19 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
               <Text>-{formatMoney(invoice.discountAmount, invoice.currency)}</Text>
             </View>
           )}
+          {invoice.charges.map((charge, i) => (
+            <View style={styles.totalsRow} key={i}>
+              <Text>{charge.label}</Text>
+              <Text>
+                {formatMoney(
+                  charge.isPercent
+                    ? (invoice.subtotal - invoice.discountAmount) * (charge.amount / 100)
+                    : charge.amount,
+                  invoice.currency
+                )}
+              </Text>
+            </View>
+          ))}
           {invoice.taxAmount > 0 && (
             <View style={styles.totalsRow}>
               <Text>Pajak</Text>
@@ -172,6 +195,9 @@ export function ClassicProfessionalTemplate({ invoice, profile, logoSrc }: Theme
             <Text>Total</Text>
             <Text>{formatMoney(invoice.total, invoice.currency)}</Text>
           </View>
+          {invoice.currency === "IDR" && (
+            <Text style={styles.terbilang}>Terbilang: {terbilangRupiah(invoice.total)}</Text>
+          )}
         </View>
 
         {(profile.bankName || profile.bankAccountNumber) && (

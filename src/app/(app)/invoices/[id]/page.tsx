@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation";
 import { FilePdf, Copy, Trash } from "@phosphor-icons/react/dist/ssr";
 import { InvoiceEditor } from "@/components/InvoiceEditor";
+import { ShareLinkButton } from "@/components/ShareLinkButton";
 import { getClients } from "@/lib/actions/clients";
 import {
   getInvoice,
   updateInvoice,
   deleteInvoice,
   duplicateInvoice,
+  getOrCreateShareLink,
   type InvoiceInput,
 } from "@/lib/actions/invoices";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -40,6 +42,7 @@ export default async function InvoiceDetailPage({
               <FilePdf size={16} aria-hidden="true" />
               Export PDF
             </LinkButton>
+            <ShareLinkButton invoiceId={id} getOrCreateShareLink={getOrCreateShareLink} />
             <form action={duplicateWithId}>
               <Button type="submit" variant="secondary">
                 <Copy size={16} aria-hidden="true" />
@@ -75,6 +78,13 @@ export default async function InvoiceDetailPage({
             description: i.description,
             qty: i.qty,
             unitPrice: i.unitPrice,
+            discountType: i.discountType,
+            discountValue: i.discountValue,
+          })),
+          charges: invoice.charges.map((c) => ({
+            label: c.label,
+            amount: c.amount,
+            isPercent: c.isPercent,
           })),
         }}
         onSubmit={handleUpdate}

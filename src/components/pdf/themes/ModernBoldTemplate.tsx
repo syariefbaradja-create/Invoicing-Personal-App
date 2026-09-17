@@ -1,5 +1,6 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import { terbilangRupiah } from "@/lib/invoice";
 
 export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
   const primary = profile.primaryColor;
@@ -61,6 +62,8 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
     },
     paymentBox: { backgroundColor: "#F8FAFC", padding: 12, borderRadius: 4, marginBottom: 20 },
     footer: { marginTop: 20, fontSize: 9, color: "#94A3B8", textAlign: "center" },
+    itemDiscount: { fontSize: 8, color: "#94A3B8" },
+    terbilang: { fontSize: 9, fontFamily: font.italic, color: "#64748B", marginTop: 4 },
   });
 
   return (
@@ -110,7 +113,14 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
           </View>
           {invoice.items.map((item, i) => (
             <View style={styles.tableRow} key={i}>
-              <Text style={styles.colDesc}>{item.description}</Text>
+              <View style={styles.colDesc}>
+                <Text>{item.description}</Text>
+                {item.discountType && (item.discountValue ?? 0) > 0 && (
+                  <Text style={styles.itemDiscount}>
+                    diskon {item.discountType === "PERCENT" ? `${item.discountValue}%` : formatMoney(item.discountValue ?? 0, invoice.currency)}
+                  </Text>
+                )}
+              </View>
               <Text style={styles.colQty}>{item.qty}</Text>
               <Text style={styles.colPrice}>{formatMoney(item.unitPrice, invoice.currency)}</Text>
               <Text style={styles.colSubtotal}>
@@ -131,6 +141,19 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
               <Text>-{formatMoney(invoice.discountAmount, invoice.currency)}</Text>
             </View>
           )}
+          {invoice.charges.map((charge, i) => (
+            <View style={styles.totalsRow} key={i}>
+              <Text>{charge.label}</Text>
+              <Text>
+                {formatMoney(
+                  charge.isPercent
+                    ? (invoice.subtotal - invoice.discountAmount) * (charge.amount / 100)
+                    : charge.amount,
+                  invoice.currency
+                )}
+              </Text>
+            </View>
+          ))}
           {invoice.taxAmount > 0 && (
             <View style={styles.totalsRow}>
               <Text>Pajak</Text>
@@ -141,6 +164,9 @@ export function ModernBoldTemplate({ invoice, profile, logoSrc }: ThemeTemplateP
             <Text>Total</Text>
             <Text>{formatMoney(invoice.total, invoice.currency)}</Text>
           </View>
+          {invoice.currency === "IDR" && (
+            <Text style={styles.terbilang}>Terbilang: {terbilangRupiah(invoice.total)}</Text>
+          )}
         </View>
 
         {(profile.bankName || profile.bankAccountNumber) && (

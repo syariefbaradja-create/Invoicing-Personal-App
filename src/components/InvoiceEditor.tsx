@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash, X } from "@phosphor-icons/react/dist/ssr";
-import { calculateInvoiceTotals, formatCurrency } from "@/lib/invoice";
-import type { InvoiceInput, InvoiceItemInput } from "@/lib/actions/invoices";
+import { calculateInvoiceTotals, calculateItemNet, formatCurrency, terbilangRupiah } from "@/lib/invoice";
+import type { InvoiceInput, InvoiceItemInput, ChargeItemInput } from "@/lib/actions/invoices";
 import { Field, inputClass } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 
@@ -24,6 +24,7 @@ type InitialInvoice = {
   taxRate: number;
   notes: string;
   items: InvoiceItemInput[];
+  charges: ChargeItemInput[];
 };
 
 function todayISO() {
@@ -36,7 +37,14 @@ function inTwoWeeksISO() {
   return d.toISOString().slice(0, 10);
 }
 
-const emptyItem: InvoiceItemInput = { description: "", qty: 1, unitPrice: 0 };
+const emptyItem: InvoiceItemInput = {
+  description: "",
+  qty: 1,
+  unitPrice: 0,
+  discountType: null,
+  discountValue: 0,
+};
+const emptyCharge: ChargeItemInput = { label: "", amount: 0, isPercent: false };
 const selectClass = inputClass;
 
 export function InvoiceEditor({
@@ -65,6 +73,7 @@ export function InvoiceEditor({
   const [items, setItems] = useState<InvoiceItemInput[]>(
     initial?.items?.length ? initial.items : [emptyItem]
   );
+  const [charges, setCharges] = useState<ChargeItemInput[]>(initial?.charges ?? []);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
@@ -75,8 +84,9 @@ export function InvoiceEditor({
         discountValue,
         taxEnabled,
         taxRate,
+        charges,
       }),
-    [items, discountType, discountValue, taxEnabled, taxRate]
+    [items, discountType, discountValue, taxEnabled, taxRate, charges]
   );
 
   const selectedClient = clients.find((c) => c.id === clientId);
@@ -91,6 +101,18 @@ export function InvoiceEditor({
 
   function removeItem(index: number) {
     setItems((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateCharge(index: number, patch: Partial<ChargeItemInput>) {
+    setCharges((prev) => prev.map((c, i) => (i === index ? { ...c, ...patch } : c)));
+  }
+
+  function addCharge() {
+    setCharges((prev) => [...prev, { ...emptyCharge }]);
+  }
+
+  function removeCharge(index: number) {
+    setCharges((prev) => prev.filter((_, i) => i !== index));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -111,6 +133,7 @@ export function InvoiceEditor({
         taxRate,
         notes,
         items,
+        charges,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
@@ -198,49 +221,129 @@ export function InvoiceEditor({
               Tambah Item
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {items.map((item, i) => (
-              <div key={i} className="flex gap-2">
-                <input
-                  placeholder="Deskripsi jasa"
-                  value={item.description}
-                  onChange={(e) => updateItem(i, { description: e.target.value })}
-                  className={`${inputClass} flex-1 py-1.5`}
-                />
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  placeholder="Qty"
-                  value={item.qty}
-                  onChange={(e) => updateItem(i, { qty: Number(e.target.value) })}
-                  className={`${inputClass} w-16 py-1.5`}
-                />
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  placeholder="Harga satuan"
-                  value={item.unitPrice}
-                  onChange={(e) => updateItem(i, { unitPrice: Number(e.target.value) })}
-                  className={`${inputClass} w-32 py-1.5`}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeItem(i)}
-                  disabled={items.length === 1}
-                  aria-label="Hapus item"
-                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-30"
-                >
-                  <Trash size={16} aria-hidden="true" />
-                </button>
+              <div key={i} className="rounded-md border border-border p-2">
+                <div className="mb-1.5 flex gap-2">
+                  <input
+                    placeholder="Deskripsi jasa"
+                    value={item.description}
+                    onChange={(e) => updateItem(i, { description: e.target.value })}
+                    className={`${inputClass} flex-1 py-1.5`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    disabled={items.length === 1}
+                    aria-label="Hapus item"
+                    className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    <Trash size={16} aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min={0}
+                    step="any"
+                    placeholder="Qty"
+                    value={item.qty}
+                    onChange={(e) => updateItem(i, { qty: Number(e.target.value) })}
+                    className={`${inputClass} w-16 py-1.5`}
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    step="any"
+                    placeholder="Harga satuan"
+                    value={item.unitPrice}
+                    onChange={(e) => updateItem(i, { unitPrice: Number(e.target.value) })}
+                    className={`${inputClass} flex-1 py-1.5`}
+                  />
+                  <select
+                    value={item.discountType ?? ""}
+                    onChange={(e) =>
+                      updateItem(i, {
+                        discountType: (e.target.value || null) as InvoiceItemInput["discountType"],
+                      })
+                    }
+                    className={`${selectClass} w-20 py-1.5 text-xs`}
+                    aria-label="Tipe diskon item"
+                  >
+                    <option value="">Diskon</option>
+                    <option value="PERCENT">%</option>
+                    <option value="FIXED">Rp</option>
+                  </select>
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="0"
+                    value={item.discountValue ?? 0}
+                    onChange={(e) => updateItem(i, { discountValue: Number(e.target.value) })}
+                    disabled={!item.discountType}
+                    className={`${inputClass} w-20 py-1.5 disabled:opacity-50`}
+                    aria-label="Nilai diskon item"
+                  />
+                </div>
               </div>
             ))}
           </div>
         </div>
 
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Additional Charges</span>
+            <button
+              type="button"
+              onClick={addCharge}
+              className="flex cursor-pointer items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              <Plus size={14} weight="bold" aria-hidden="true" />
+              Tambah Biaya
+            </button>
+          </div>
+          {charges.length > 0 && (
+            <div className="space-y-2">
+              {charges.map((charge, i) => (
+                <div key={i} className="flex gap-2">
+                  <input
+                    placeholder="Label (mis. Ongkir)"
+                    value={charge.label}
+                    onChange={(e) => updateCharge(i, { label: e.target.value })}
+                    className={`${inputClass} flex-1 py-1.5`}
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    placeholder="Nominal"
+                    value={charge.amount}
+                    onChange={(e) => updateCharge(i, { amount: Number(e.target.value) })}
+                    className={`${inputClass} w-28 py-1.5`}
+                  />
+                  <select
+                    value={charge.isPercent ? "PERCENT" : "FIXED"}
+                    onChange={(e) => updateCharge(i, { isPercent: e.target.value === "PERCENT" })}
+                    className={`${selectClass} w-20 py-1.5`}
+                  >
+                    <option value="FIXED">Rp</option>
+                    <option value="PERCENT">%</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => removeCharge(i)}
+                    aria-label="Hapus biaya"
+                    className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash size={16} aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Diskon">
+          <Field label="Diskon Invoice">
             <div className="flex gap-2">
               <select
                 value={discountType}
@@ -348,27 +451,35 @@ export function InvoiceEditor({
               </tr>
             </thead>
             <tbody>
-              {items.map((item, i) => (
-                <tr key={i} className="border-b border-border align-top last:border-0">
-                  <td className="py-1.5 pr-2 break-words text-foreground">
-                    {item.description || "-"}
-                  </td>
-                  <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
-                    {item.qty}
-                  </td>
-                  <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
-                    {formatCurrency(item.unitPrice, currency)}
-                  </td>
-                  <td className="py-1.5 pl-1 text-right font-medium tabular-nums text-foreground">
-                    {formatCurrency(item.qty * item.unitPrice, currency)}
-                  </td>
-                </tr>
-              ))}
+              {items.map((item, i) => {
+                const net = calculateItemNet(item);
+                return (
+                  <tr key={i} className="border-b border-border align-top last:border-0">
+                    <td className="py-1.5 pr-2 break-words text-foreground">
+                      {item.description || "-"}
+                      {net.discount > 0 && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          (diskon {item.discountType === "PERCENT" ? `${item.discountValue}%` : formatCurrency(item.discountValue ?? 0, currency)})
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
+                      {item.qty}
+                    </td>
+                    <td className="py-1.5 pl-1 text-right tabular-nums text-muted-foreground">
+                      {formatCurrency(item.unitPrice, currency)}
+                    </td>
+                    <td className="py-1.5 pl-1 text-right font-medium tabular-nums text-foreground">
+                      {formatCurrency(net.net, currency)}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        <div className="ml-auto max-w-[240px] space-y-1.5 text-sm">
+        <div className="ml-auto max-w-[260px] space-y-1.5 text-sm">
           <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
             <span className="tabular-nums">{formatCurrency(totals.subtotal, currency)}</span>
@@ -381,6 +492,16 @@ export function InvoiceEditor({
               </span>
             </div>
           )}
+          {charges.map((charge, i) => {
+            const base = totals.subtotal - totals.discountAmount;
+            const amount = charge.isPercent ? base * (charge.amount / 100) : charge.amount;
+            return (
+              <div key={i} className="flex justify-between text-muted-foreground">
+                <span>{charge.label || "Biaya Tambahan"}</span>
+                <span className="tabular-nums">{formatCurrency(amount, currency)}</span>
+              </div>
+            );
+          })}
           {totals.taxAmount > 0 && (
             <div className="flex justify-between text-muted-foreground">
               <span>Pajak</span>
@@ -391,6 +512,11 @@ export function InvoiceEditor({
             <span>Total</span>
             <span className="tabular-nums">{formatCurrency(totals.total, currency)}</span>
           </div>
+          {currency === "IDR" && (
+            <div className="pt-1 text-xs italic text-muted-foreground">
+              Terbilang: {terbilangRupiah(totals.total)}
+            </div>
+          )}
         </div>
 
         {notes && (

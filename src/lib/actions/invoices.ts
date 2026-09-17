@@ -2,15 +2,24 @@
 
 import { prisma } from "@/lib/prisma";
 import { generateInvoiceNumber } from "@/lib/invoiceNumber";
-import { calculateInvoiceTotals } from "@/lib/invoice";
+import { calculateInvoiceTotals, calculateItemNet } from "@/lib/invoice";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomBytes } from "crypto";
 import type { DiscountType, InvoiceStatus, Theme } from "@prisma/client";
 
 export type InvoiceItemInput = {
   description: string;
   qty: number;
   unitPrice: number;
+  discountType?: DiscountType | null;
+  discountValue?: number;
+};
+
+export type ChargeItemInput = {
+  label: string;
+  amount: number;
+  isPercent: boolean;
 };
 
 export type InvoiceInput = {
@@ -26,6 +35,7 @@ export type InvoiceInput = {
   taxRate: number;
   notes: string;
   items: InvoiceItemInput[];
+  charges: ChargeItemInput[];
 };
 
 export type InvoiceListFilter = {
@@ -40,6 +50,30 @@ function validateInput(input: InvoiceInput) {
   for (const item of input.items) {
     if (!item.description.trim()) throw new Error("Deskripsi item wajib diisi");
   }
+  for (const charge of input.charges) {
+    if (!charge.label.trim()) throw new Error("Label additional charge wajib diisi");
+  }
+}
+
+function buildItemsCreate(items: InvoiceItemInput[]) {
+  return items.map((item, i) => ({
+    description: item.description,
+    qty: item.qty,
+    unitPrice: item.unitPrice,
+    discountType: item.discountType ?? null,
+    discountValue: item.discountValue ?? 0,
+    subtotal: calculateItemNet(item).net,
+    position: i,
+  }));
+}
+
+function buildChargesCreate(charges: ChargeItemInput[]) {
+  return charges.map((charge, i) => ({
+    label: charge.label,
+    amount: charge.amount,
+    isPercent: charge.isPercent,
+    position: i,
+  }));
 }
 
 export async function createInvoice(input: InvoiceInput) {
@@ -50,6 +84,7 @@ export async function createInvoice(input: InvoiceInput) {
     discountValue: input.discountValue,
     taxEnabled: input.taxEnabled,
     taxRate: input.taxRate,
+    charges: input.charges,
   });
 
   const number = await generateInvoiceNumber();
@@ -69,15 +104,8 @@ export async function createInvoice(input: InvoiceInput) {
       taxRate: input.taxRate,
       notes: input.notes,
       ...totals,
-      items: {
-        create: input.items.map((item, i) => ({
-          description: item.description,
-          qty: item.qty,
-          unitPrice: item.unitPrice,
-          subtotal: item.qty * item.unitPrice,
-          position: i,
-        })),
-      },
+      items: { create: buildItemsCreate(input.items) },
+      charges: { create: buildChargesCreate(input.charges) },
     },
   });
 
@@ -94,10 +122,12 @@ export async function updateInvoice(id: string, input: InvoiceInput) {
     discountValue: input.discountValue,
     taxEnabled: input.taxEnabled,
     taxRate: input.taxRate,
+    charges: input.charges,
   });
 
   await prisma.$transaction([
     prisma.invoiceItem.deleteMany({ where: { invoiceId: id } }),
+    prisma.additionalCharge.deleteMany({ where: { invoiceId: id } }),
     prisma.invoice.update({
       where: { id },
       data: {
@@ -114,15 +144,8 @@ export async function updateInvoice(id: string, input: InvoiceInput) {
         notes: input.notes,
         ...totals,
         paidAt: input.status === "PAID" ? new Date() : null,
-        items: {
-          create: input.items.map((item, i) => ({
-            description: item.description,
-            qty: item.qty,
-            unitPrice: item.unitPrice,
-            subtotal: item.qty * item.unitPrice,
-            position: i,
-          })),
-        },
+        items: { create: buildItemsCreate(input.items) },
+        charges: { create: buildChargesCreate(input.charges) },
       },
     }),
   ]);
@@ -152,7 +175,7 @@ export async function deleteInvoice(id: string) {
 export async function duplicateInvoice(id: string) {
   const original = await prisma.invoice.findUniqueOrThrow({
     where: { id },
-    include: { items: true },
+    include: { items: true, charges: true },
   });
 
   const number = await generateInvoiceNumber();
@@ -178,6 +201,7 @@ export async function duplicateInvoice(id: string) {
       notes: original.notes,
       subtotal: original.subtotal,
       discountAmount: original.discountAmount,
+      chargesTotal: original.chargesTotal,
       taxAmount: original.taxAmount,
       total: original.total,
       items: {
@@ -185,8 +209,18 @@ export async function duplicateInvoice(id: string) {
           description: item.description,
           qty: item.qty,
           unitPrice: item.unitPrice,
+          discountType: item.discountType,
+          discountValue: item.discountValue,
           subtotal: item.subtotal,
           position: item.position,
+        })),
+      },
+      charges: {
+        create: original.charges.map((charge) => ({
+          label: charge.label,
+          amount: charge.amount,
+          isPercent: charge.isPercent,
+          position: charge.position,
         })),
       },
     },
@@ -226,6 +260,36 @@ export async function getInvoices(filter: InvoiceListFilter = {}) {
 export async function getInvoice(id: string) {
   return prisma.invoice.findUnique({
     where: { id },
-    include: { client: true, items: { orderBy: { position: "asc" } } },
+    include: {
+      client: true,
+      items: { orderBy: { position: "asc" } },
+      charges: { orderBy: { position: "asc" } },
+    },
   });
+}
+
+export async function getInvoiceByPublicToken(token: string) {
+  return prisma.invoice.findUnique({
+    where: { publicToken: token },
+    include: {
+      client: true,
+      items: { orderBy: { position: "asc" } },
+      charges: { orderBy: { position: "asc" } },
+    },
+  });
+}
+
+export async function getOrCreateShareLink(id: string) {
+  const invoice = await prisma.invoice.findUniqueOrThrow({ where: { id } });
+  if (invoice.publicToken) return invoice.publicToken;
+
+  const token = randomBytes(12).toString("hex");
+  await prisma.invoice.update({ where: { id }, data: { publicToken: token } });
+  revalidatePath(`/invoices/${id}`);
+  return token;
+}
+
+export async function revokeShareLink(id: string) {
+  await prisma.invoice.update({ where: { id }, data: { publicToken: null } });
+  revalidatePath(`/invoices/${id}`);
 }

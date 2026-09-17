@@ -1,5 +1,6 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
+import { terbilangRupiah } from "@/lib/invoice";
 
 export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
   const accent = profile.accentColor;
@@ -70,6 +71,8 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
     },
     section: { marginBottom: 24 },
     footer: { marginTop: 32, fontSize: 8, color: "#D1D5DB", textAlign: "center" },
+    itemDiscount: { fontSize: 7, color: "#D1D5DB", marginTop: 1 },
+    terbilang: { fontSize: 8, fontFamily: font.italic, color: "#9CA3AF", marginTop: 6 },
   });
 
   return (
@@ -113,7 +116,14 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
         </View>
         {invoice.items.map((item, i) => (
           <View style={styles.tableRow} key={i}>
-            <Text style={styles.colDesc}>{item.description}</Text>
+            <View style={styles.colDesc}>
+              <Text>{item.description}</Text>
+              {item.discountType && (item.discountValue ?? 0) > 0 && (
+                <Text style={styles.itemDiscount}>
+                  diskon {item.discountType === "PERCENT" ? `${item.discountValue}%` : formatMoney(item.discountValue ?? 0, invoice.currency)}
+                </Text>
+              )}
+            </View>
             <Text style={styles.colQty}>{item.qty}</Text>
             <Text style={styles.colPrice}>{formatMoney(item.unitPrice, invoice.currency)}</Text>
             <Text style={styles.colSubtotal}>{formatMoney(item.subtotal, invoice.currency)}</Text>
@@ -132,6 +142,19 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
             <Text>-{formatMoney(invoice.discountAmount, invoice.currency)}</Text>
           </View>
         )}
+        {invoice.charges.map((charge, i) => (
+          <View style={styles.totalsRow} key={i}>
+            <Text style={styles.muted}>{charge.label}</Text>
+            <Text>
+              {formatMoney(
+                charge.isPercent
+                  ? (invoice.subtotal - invoice.discountAmount) * (charge.amount / 100)
+                  : charge.amount,
+                invoice.currency
+              )}
+            </Text>
+          </View>
+        ))}
         {invoice.taxAmount > 0 && (
           <View style={styles.totalsRow}>
             <Text style={styles.muted}>Pajak</Text>
@@ -142,6 +165,9 @@ export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplat
           <Text>Total</Text>
           <Text>{formatMoney(invoice.total, invoice.currency)}</Text>
         </View>
+        {invoice.currency === "IDR" && (
+          <Text style={styles.terbilang}>Terbilang: {terbilangRupiah(invoice.total)}</Text>
+        )}
       </View>
 
       {(profile.bankName || profile.bankAccountNumber) && (

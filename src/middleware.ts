@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME, verifySessionToken } from "@/lib/session";
 
 const PUBLIC_PATHS = ["/login", "/api/login"];
+const PUBLIC_PREFIXES = ["/share/", "/api/public/"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (
     PUBLIC_PATHS.includes(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon")
   ) {

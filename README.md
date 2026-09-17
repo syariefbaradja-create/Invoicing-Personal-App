@@ -36,12 +36,18 @@ Sudah jalan:
 - [x] Settings: profil bisnis, logo bisnis (upload + preview + hapus), rekening bank, prefix nomor invoice, default theme, currency, warna utama & aksen invoice, pilihan font PDF (Sans/Serif/Mono)
 - [x] Desain visual (via skill `ui-ux-pro-max`): palet navy/hijau untuk finance tool, IBM Plex Sans, Phosphor icons, status badge semantik
 - [x] Export data CSV/JSON (`/api/export`) — Contacts, Invoices, Invoice Items per CSV, atau backup lengkap dalam satu JSON
+- [x] Additional charges (biaya tambahan custom, nominal/%) per invoice
+- [x] Diskon per-item (selain diskon level invoice, keduanya bisa dipakai bersamaan)
+- [x] Total terbilang (mis. "Empat Juta Enam Ratus Lima Puluh Ribu Rupiah") di preview, PDF, dan halaman publik — khusus currency IDR
+- [x] Shareable link publik (`/share/[token]`) — klien bisa buka & download PDF invoice tanpa login, link di-generate dari tombol "Share Link" di halaman invoice
 
-Belum dikerjakan (di luar scope sesi ini):
+Belum dikerjakan (di luar scope sesi ini) — lihat juga roadmap fitur Refrens yang belum diambil:
 
 - [ ] Backup database otomatis terjadwal (saat ini manual via halaman Settings → Export Data)
 - [ ] Logo SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
-- [ ] Diskon masih di level invoice saja, belum per item
+- [ ] Signature digital, attachments (sisa item Fase 1 dari roadmap Refrens)
+- [ ] Recurring invoice, reminder email, payment tracking parsial (Fase 2)
+- [ ] Custom formula columns, payment gateway, approval workflow (Fase 3 — sengaja ditunda, lihat dokumen roadmap)
 
 ## Catatan teknis
 

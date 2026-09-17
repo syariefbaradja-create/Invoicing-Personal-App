@@ -6,6 +6,7 @@ export type PdfInvoice = {
   currency: string;
   subtotal: number;
   discountAmount: number;
+  chargesTotal: number;
   taxAmount: number;
   total: number;
   notes: string | null;
@@ -21,6 +22,13 @@ export type PdfInvoice = {
     qty: number;
     unitPrice: number;
     subtotal: number;
+    discountType?: string | null;
+    discountValue?: number;
+  }[];
+  charges: {
+    label: string;
+    amount: number;
+    isPercent: boolean;
   }[];
 };
 
