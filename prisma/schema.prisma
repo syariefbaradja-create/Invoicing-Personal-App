@@ -20,9 +20,9 @@ model BusinessProfile {
   bankAccountNumber  String?
   bankBranch         String?
   defaultTheme       Theme    @default(MODERN_BOLD)
-  primaryColor       String   @default("#FAFAF8")
-  accentColor        String   @default("#0F5257")
-  fontChoice         String   @default("Inter")
+  primaryColor       String   @default("#1E3A5F")
+  accentColor        String   @default("#059669")
+  fontChoice         String   @default("Helvetica")
   invoicePrefix      String   @default("INV")
   nextInvoiceSeq     Int      @default(1)
   invoiceSeqYear     Int      @default(0)

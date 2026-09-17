@@ -34,6 +34,9 @@ export type PdfProfile = {
   bankAccountName: string | null;
   bankAccountNumber: string | null;
   bankBranch: string | null;
+  primaryColor: string;
+  accentColor: string;
+  fontChoice: string;
 };
 
 export type ThemeTemplateProps = {
@@ -48,6 +51,16 @@ export function formatMoney(amount: number, currency: string) {
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+const FONT_FAMILIES: Record<string, { regular: string; bold: string; italic: string }> = {
+  Helvetica: { regular: "Helvetica", bold: "Helvetica-Bold", italic: "Helvetica-Oblique" },
+  "Times-Roman": { regular: "Times-Roman", bold: "Times-Bold", italic: "Times-Italic" },
+  Courier: { regular: "Courier", bold: "Courier-Bold", italic: "Courier-Oblique" },
+};
+
+export function resolveFontFamilies(fontChoice: string) {
+  return FONT_FAMILIES[fontChoice] ?? FONT_FAMILIES.Helvetica;
 }
 
 export function formatDate(d: Date) {

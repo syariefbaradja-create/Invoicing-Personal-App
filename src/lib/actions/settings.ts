@@ -66,6 +66,9 @@ export async function updateSettings(formData: FormData) {
       invoicePrefix: String(formData.get("invoicePrefix") ?? "INV"),
       defaultTerms: String(formData.get("defaultTerms") ?? "") || null,
       currency: String(formData.get("currency") ?? "IDR"),
+      primaryColor: String(formData.get("primaryColor") ?? "#1E3A5F"),
+      accentColor: String(formData.get("accentColor") ?? "#059669"),
+      fontChoice: String(formData.get("fontChoice") ?? "Helvetica"),
       logoUrl,
     },
   });

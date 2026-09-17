@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { Wallet, Hourglass, WarningCircle, Plus } from "@phosphor-icons/react/dist/ssr";
-import { getDashboardSummary } from "@/lib/actions/dashboard";
+import { getDashboardSummary, getMonthlyCashflowTrend } from "@/lib/actions/dashboard";
 import { formatCurrency, isOverdue } from "@/lib/invoice";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LinkButton } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { CashflowChart } from "@/components/CashflowChart";
 
 export default async function DashboardPage() {
-  const summary = await getDashboardSummary();
+  const [summary, cashflowTrend] = await Promise.all([
+    getDashboardSummary(),
+    getMonthlyCashflowTrend(),
+  ]);
 
   return (
     <div>
@@ -40,6 +44,11 @@ export default async function DashboardPage() {
           label="Overdue"
           value={`${summary.overdueCount} invoice`}
         />
+      </div>
+
+      <div className="mt-8 rounded-lg border border-border bg-card p-5">
+        <h2 className="mb-4 text-base font-semibold text-foreground">Tren Cashflow Bulanan</h2>
+        <CashflowChart data={cashflowTrend} />
       </div>
 
       <div className="mt-8">

@@ -31,8 +31,9 @@ Sudah jalan:
 - [x] Status invoice: Draft → Terkirim → Lunas/Belum Lunas, filter list termasuk Overdue (dihitung dari due date, bukan status terpisah)
 - [x] Duplicate invoice
 - [x] Export PDF multi-theme (`/invoices/[id]/pdf`) — Modern Bold, Minimal Clean, Classic Professional, masing-masing layout berbeda
-- [x] Dashboard: tertagih bulan ini, belum dibayar, jumlah overdue, 5 invoice terbaru — semua dihitung langsung dari status invoice (tidak ada pencatatan ganda)
-- [x] Settings: profil bisnis, logo bisnis (upload + preview + hapus), rekening bank, prefix nomor invoice, default theme, currency
+- [x] Dashboard: tertagih bulan ini, belum dibayar, jumlah overdue, tren cashflow bulanan (chart 6 bulan), 5 invoice terbaru — semua dihitung langsung dari status invoice (tidak ada pencatatan ganda)
+- [x] Invoices: filter status + filter periode (Semua Waktu/Bulan Ini/Tahun Ini), bisa dikombinasikan
+- [x] Settings: profil bisnis, logo bisnis (upload + preview + hapus), rekening bank, prefix nomor invoice, default theme, currency, warna utama & aksen invoice, pilihan font PDF (Sans/Serif/Mono)
 - [x] Desain visual (via skill `ui-ux-pro-max`): palet navy/hijau untuk finance tool, IBM Plex Sans, Phosphor icons, status badge semantik
 - [x] Export data CSV/JSON (`/api/export`) — Contacts, Invoices, Invoice Items per CSV, atau backup lengkap dalam satu JSON
 
@@ -40,6 +41,7 @@ Belum dikerjakan (di luar scope sesi ini):
 
 - [ ] Backup database otomatis terjadwal (saat ini manual via halaman Settings → Export Data)
 - [ ] Logo SVG belum tampil di PDF (react-pdf hanya render raster — PNG/JPG/WEBP)
+- [ ] Diskon masih di level invoice saja, belum per item
 
 ## Catatan teknis
 

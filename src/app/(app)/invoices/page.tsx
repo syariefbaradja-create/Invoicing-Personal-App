@@ -15,14 +15,41 @@ const STATUS_OPTIONS = [
   { value: "OVERDUE", label: "Overdue" },
 ] as const;
 
+const PERIOD_OPTIONS = [
+  { value: "ALL", label: "Semua Waktu" },
+  { value: "MONTH", label: "Bulan Ini" },
+  { value: "YEAR", label: "Tahun Ini" },
+] as const;
+
+function periodToRange(period: string) {
+  const now = new Date();
+  if (period === "MONTH") {
+    return {
+      from: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+      to: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString(),
+    };
+  }
+  if (period === "YEAR") {
+    return {
+      from: new Date(now.getFullYear(), 0, 1).toISOString(),
+      to: new Date(now.getFullYear(), 11, 31, 23, 59, 59).toISOString(),
+    };
+  }
+  return {};
+}
+
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; period?: string }>;
 }) {
-  const { status } = await searchParams;
+  const { status, period } = await searchParams;
+  const currentStatus = (status as InvoiceListFilter["status"]) ?? "ALL";
+  const currentPeriod = period ?? "ALL";
+
   const filter: InvoiceListFilter = {
-    status: (status as InvoiceListFilter["status"]) ?? "ALL",
+    status: currentStatus,
+    ...periodToRange(currentPeriod),
   };
   const invoices = await getInvoices(filter);
 
@@ -38,18 +65,34 @@ export default async function InvoicesPage({
         }
       />
 
-      <div className="mb-4 flex gap-1.5">
+      <div className="mb-3 flex gap-1.5">
         {STATUS_OPTIONS.map((s) => (
           <Link
             key={s.value}
-            href={`/invoices?status=${s.value}`}
+            href={`/invoices?status=${s.value}&period=${currentPeriod}`}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              (filter.status ?? "ALL") === s.value
+              currentStatus === s.value
                 ? "bg-primary text-primary-foreground"
                 : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             {s.label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="mb-4 flex gap-1.5">
+        {PERIOD_OPTIONS.map((p) => (
+          <Link
+            key={p.value}
+            href={`/invoices?status=${currentStatus}&period=${p.value}`}
+            className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+              currentPeriod === p.value
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:bg-muted/60"
+            }`}
+          >
+            {p.label}
           </Link>
         ))}
       </div>

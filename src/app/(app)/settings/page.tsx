@@ -125,6 +125,46 @@ export default async function SettingsPage() {
           </Field>
         </fieldset>
 
+        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+          <legend className="px-1 text-sm font-semibold text-foreground">
+            Tampilan Invoice (PDF)
+          </legend>
+          <p className="text-sm text-muted-foreground">
+            Berlaku di semua theme PDF — mengganti warna utama/aksen dan font default.
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            <Field label="Warna Utama">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  name="primaryColor"
+                  defaultValue={profile.primaryColor}
+                  className="h-10 w-12 shrink-0 cursor-pointer rounded-md border border-border bg-card p-1"
+                />
+                <span className="text-sm text-muted-foreground">{profile.primaryColor}</span>
+              </div>
+            </Field>
+            <Field label="Warna Aksen">
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  name="accentColor"
+                  defaultValue={profile.accentColor}
+                  className="h-10 w-12 shrink-0 cursor-pointer rounded-md border border-border bg-card p-1"
+                />
+                <span className="text-sm text-muted-foreground">{profile.accentColor}</span>
+              </div>
+            </Field>
+            <Field label="Font">
+              <select name="fontChoice" defaultValue={profile.fontChoice} className={inputClass}>
+                <option value="Helvetica">Sans Modern (Helvetica)</option>
+                <option value="Times-Roman">Serif Klasik (Times)</option>
+                <option value="Courier">Mono Teknikal (Courier)</option>
+              </select>
+            </Field>
+          </div>
+        </fieldset>
+
         <Button type="submit">Simpan</Button>
       </form>
 

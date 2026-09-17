@@ -1,70 +1,77 @@
 import { Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
-import { formatMoney, formatDate, type ThemeTemplateProps } from "../types";
-
-const ACCENT = "#1E3A5F";
-
-const styles = StyleSheet.create({
-  page: { padding: 56, fontSize: 10, fontFamily: "Helvetica", color: "#1F2937" },
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 40,
-  },
-  logo: { width: 32, height: 32, objectFit: "contain", marginBottom: 8 },
-  businessName: { fontSize: 13, fontWeight: 500, color: "#1F2937" },
-  headerMuted: { color: "#9CA3AF", fontSize: 9, marginTop: 1 },
-  invoiceTitle: {
-    fontSize: 13,
-    fontWeight: 500,
-    textAlign: "right",
-    color: ACCENT,
-    letterSpacing: 2,
-  },
-  invoiceNumber: { textAlign: "right", color: "#9CA3AF", marginTop: 3, fontSize: 9 },
-  accentRule: { height: 1, backgroundColor: ACCENT, width: 32, marginTop: 6, marginLeft: "auto" },
-  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 36 },
-  label: {
-    color: "#9CA3AF",
-    fontSize: 8,
-    marginBottom: 4,
-    letterSpacing: 1,
-  },
-  muted: { color: "#9CA3AF" },
-  table: { marginBottom: 28 },
-  tableHeader: {
-    flexDirection: "row",
-    borderBottom: `0.75px solid ${ACCENT}`,
-    paddingBottom: 6,
-    marginBottom: 8,
-  },
-  tableHeaderText: { fontSize: 8, letterSpacing: 1, color: "#9CA3AF" },
-  tableRow: {
-    flexDirection: "row",
-    borderBottom: "0.5px solid #F1F5F9",
-    paddingVertical: 8,
-  },
-  colDesc: { flex: 3 },
-  colQty: { flex: 1, textAlign: "right" },
-  colPrice: { flex: 1.5, textAlign: "right" },
-  colSubtotal: { flex: 1.5, textAlign: "right" },
-  totalsBlock: { alignSelf: "flex-end", width: 200, marginBottom: 36 },
-  totalsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
-  totalsFinal: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTop: `0.75px solid ${ACCENT}`,
-    paddingTop: 6,
-    marginTop: 2,
-    fontWeight: 500,
-    fontSize: 12,
-    color: ACCENT,
-  },
-  section: { marginBottom: 24 },
-  footer: { marginTop: 32, fontSize: 8, color: "#D1D5DB", textAlign: "center" },
-});
+import { formatMoney, formatDate, resolveFontFamilies, type ThemeTemplateProps } from "../types";
 
 export function MinimalCleanTemplate({ invoice, profile, logoSrc }: ThemeTemplateProps) {
+  const accent = profile.accentColor;
+  const font = resolveFontFamilies(profile.fontChoice);
+
+  const styles = StyleSheet.create({
+    page: { padding: 56, fontSize: 10, fontFamily: font.regular, color: "#1F2937" },
+    headerRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: 40,
+    },
+    logo: { width: 32, height: 32, objectFit: "contain", marginBottom: 8 },
+    businessName: { fontSize: 13, fontFamily: font.bold, color: "#1F2937" },
+    headerMuted: { color: "#9CA3AF", fontSize: 9, marginTop: 1 },
+    invoiceTitle: {
+      fontSize: 13,
+      fontFamily: font.bold,
+      textAlign: "right",
+      color: accent,
+      letterSpacing: 2,
+    },
+    invoiceNumber: { textAlign: "right", color: "#9CA3AF", marginTop: 3, fontSize: 9 },
+    accentRule: {
+      height: 1,
+      backgroundColor: accent,
+      width: 32,
+      marginTop: 6,
+      marginLeft: "auto",
+    },
+    row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 36 },
+    label: {
+      color: "#9CA3AF",
+      fontSize: 8,
+      marginBottom: 4,
+      letterSpacing: 1,
+    },
+    muted: { color: "#9CA3AF" },
+    table: { marginBottom: 28 },
+    tableHeader: {
+      flexDirection: "row",
+      borderBottom: `0.75px solid ${accent}`,
+      paddingBottom: 6,
+      marginBottom: 8,
+    },
+    tableHeaderText: { fontSize: 8, letterSpacing: 1, color: "#9CA3AF" },
+    tableRow: {
+      flexDirection: "row",
+      borderBottom: "0.5px solid #F1F5F9",
+      paddingVertical: 8,
+    },
+    colDesc: { flex: 3 },
+    colQty: { flex: 1, textAlign: "right" },
+    colPrice: { flex: 1.5, textAlign: "right" },
+    colSubtotal: { flex: 1.5, textAlign: "right" },
+    totalsBlock: { alignSelf: "flex-end", width: 200, marginBottom: 36 },
+    totalsRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
+    totalsFinal: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      borderTop: `0.75px solid ${accent}`,
+      paddingTop: 6,
+      marginTop: 2,
+      fontFamily: font.bold,
+      fontSize: 12,
+      color: accent,
+    },
+    section: { marginBottom: 24 },
+    footer: { marginTop: 32, fontSize: 8, color: "#D1D5DB", textAlign: "center" },
+  });
+
   return (
     <Page size="A4" style={styles.page}>
       <View style={styles.headerRow}>
