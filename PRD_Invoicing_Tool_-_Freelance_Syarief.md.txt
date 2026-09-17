@@ -1,0 +1,144 @@
+﻿PRD: Invoicing Tool - Freelance Syarief
+2026-09-17 · @Someone
+Overview
+Langganan premium Refrens Syarief habis. Daripada perpanjang berlangganan tahunan lagi, Syarief mau bangun tool invoicing internal sendiri via Claude Code — cukup buat kebutuhan yang sebenarnya sederhana, tanpa bayar berulang ke pihak ketiga.
+Tool ini dipakai untuk invoicing pekerjaan freelance digital marketing Syarief (Meta/TikTok/Google Ads) ke klien-kliennya (misalnya Ladybydiana, Exotic Meat Bali) — bukan untuk Galonklik, yang merupakan brand terpisah di luar scope ini.
+Pengguna: hanya Syarief sendiri (single-user) — tidak perlu sistem role, permission, atau multi-tenant.
+Goals & Non-Goals
+Goals
+1. Bikin & kirim invoice profesional (PDF) ke klien freelance tanpa biaya langganan
+2. Kelola data kontak klien dasar
+3. Status pembayaran tiap invoice (lunas/belum) otomatis nge-drive angka accounting, tanpa input manual dobel
+4. Ringkasan cashflow sederhana: total tertagih, total belum dibayar, per periode
+Non-Goals (sengaja tidak dikerjakan versi ini)
+* Multi-user / kolaborasi tim
+* CRM, sales pipeline, lead management
+* Payroll, HRMS, banking integration
+* Kepatuhan pajak otomatis (e-Faktur, PPN/PPh)
+* Multi-entity — Galonklik tidak masuk scope ini
+Scope Fitur
+1. Contacts
+* Tambah/edit/hapus data klien: nama, perusahaan, alamat, email, no. telepon
+* Riwayat invoice per klien (list semua invoice yang pernah dibuat ke klien itu)
+2. Sales & Invoices
+* Buat invoice baru: pilih klien, tambah item/deskripsi jasa, qty, harga satuan, subtotal otomatis
+* Nomor invoice otomatis & berurutan
+* Export ke PDF, siap dikirim
+* Set jatuh tempo (due date)
+* Ubah status invoice: Draft → Terkirim → Lunas / Belum Lunas
+* List semua invoice dengan filter status (lunas / belum / overdue)
+3. Accounting Sederhana
+* Dashboard ringkasan: total tertagih bulan ini, total belum dibayar, invoice yang overdue
+* Status invoice (lunas/belum) otomatis nge-drive angka di dashboard — tidak ada input pembukuan terpisah
+* Riwayat/log semua invoice + statusnya, bisa difilter per periode (bulanan/tahunan)
+Core User Flow
+flowchart LR
+    A[Pilih/tambah Client] --> B[Buat Invoice baru]
+    B --> C[Isi item and harga]
+    C --> D[Generate PDF]
+    D --> E[Kirim ke klien]
+    E --> F{Dibayar?}
+    F -->|Ya| G[Tandai Lunas]
+    F -->|Belum| H[Status Belum Lunas / Overdue]
+    G --> I[Dashboard ter-update otomatis]
+    H --> I
+Invoice dibuat dari data kontak yang sudah ada, status pembayaran diubah manual sekali (lunas/belum), lalu dashboard accounting otomatis kebaca dari status itu — tidak ada pencatatan ganda.
+Data Model
+Entitas
+	Field Utama
+	Relasi
+	Client
+	id, nama, perusahaan, email, telepon, alamat
+	1 client → banyak invoice
+	Invoice
+	id, nomor invoice, client_id, tanggal terbit, jatuh tempo, status (draft/terkirim/lunas/belum), total
+	banyak invoice → 1 client; 1 invoice → banyak invoice_item
+	InvoiceItem
+	id, invoice_id, deskripsi, qty, harga_satuan, subtotal
+	milik 1 invoice
+	Status invoice adalah satu-satunya sumber data buat perhitungan accounting — tidak ada tabel transaksi terpisah.
+Tech Stack Recommendation (untuk dibangun via Claude Code)
+* Frontend + Backend: Next.js (App Router) — satu codebase, gampang di-generate & maintain lewat Claude Code
+* Database: SQLite (via Prisma atau Drizzle) — cukup untuk single-user, tidak perlu server database terpisah
+* PDF Generation: react-pdf atau Puppeteer untuk render invoice ke PDF
+* Auth: password/PIN lock sederhana, karena hanya dipakai sendiri
+* Hosting: Vercel (frontend + API) + Turso/LibSQL kalau butuh akses database dari mana saja
+* Styling: Tailwind CSS — cepat untuk UI dashboard & form
+Stack ini ringan dan sesuai skala kebutuhan single-user — bukan replika infrastruktur enterprise seperti Refrens.
+Non-Functional Requirements
+* Keamanan data: data invoice & klien adalah data finansial — minimal ada auth (password), HTTPS di hosting, backup database berkala
+* Backup: export/backup database berkala supaya data invoice tidak hilang
+* Ketersediaan: tidak perlu uptime enterprise — cukup bisa diakses saat butuh bikin/cek invoice
+* Portabilitas: data bisa di-export (CSV/JSON) untuk jaga-jaga migrasi ke tool lain di masa depan
+Out of Scope
+* Fitur CRM & sales pipeline (leads, deals)
+* Payroll & HRMS
+* Banking/payment gateway integration otomatis
+* Laporan pajak resmi (PPN/PPh, e-Faktur)
+* Multi-entity (Galonklik, atau bisnis lain di luar freelance personal)
+* Multi-user/team access
+Open Questions & Next Steps
+* Format nomor invoice: custom (misal INV/2026/001) atau default INV-YYYY-NNN?
+* Data invoice existing di Refrens — di-import manual atau mulai fresh dari nol?
+* Currency: default IDR — perlu multi-currency untuk klien luar negeri?
+Setelah PRD ini disetujui, langkah berikutnya adalah breakdown ke task-task kecil untuk dieksekusi bertahap via Claude Code — mulai dari Contacts + Invoice CRUD, baru PDF export dan dashboard.
+Invoice Generator — Fitur Lengkap
+* Multiple invoice template (theme) yang bisa dipilih & disimpan sebagai default
+* Upload logo perusahaan/personal brand
+* Kustomisasi warna utama & aksen
+* Pilihan font (2–3 opsi aman, bukan full font library)
+* Section rekening bank/metode pembayaran, tampil otomatis di tiap invoice
+* Field diskon (persen atau nominal) per item atau per invoice
+* Field pajak/PPN opsional — default off (sesuai Non-Goals), tapi field-nya tersedia kalau suatu saat dibutuhkan
+* Catatan/terms & conditions custom per invoice
+* Preview invoice sebelum export/kirim
+* Duplicate invoice — kloning invoice lama untuk klien recurring, tinggal ubah tanggal & item
+* Export PDF kualitas print-ready
+Invoice Generator — Rekomendasi Theme
+Theme
+	Karakteristik
+	Cocok Untuk
+	Minimal Clean
+	Dominan putih, satu warna aksen, sans-serif, banyak whitespace
+	Klien B2B formal (mis. Exotic Meat Bali)
+	Modern Bold
+	Header blok warna solid, logo besar, tipografi tegas
+	Representasi brand digital marketer — default theme
+	Classic Professional
+	Layout tradisional, border tabel jelas, warna netral (abu-abu/navy)
+	Klien korporat konservatif
+	Default: Modern Bold. Theme lain tersedia sebagai pilihan manual per invoice/klien.
+UI Aplikasi — Struktur & Key Screens
+Navigasi: sidebar kiri tetap (Dashboard, Contacts, Invoices, Settings) — sederhana karena single-user, tidak perlu switcher workspace/organisasi.
+Screen
+	Isi Utama
+	Aksi Utama
+	Dashboard
+	Ringkasan total tertagih, belum dibayar, overdue; tren cashflow bulanan; 5 invoice terbaru
+	Buat Invoice Baru
+	Contacts
+	List klien + pencarian; detail klien menampilkan riwayat invoice-nya
+	Tambah Klien
+	Invoices
+	Tabel semua invoice, filter status, sort by jatuh tempo
+	Duplicate, Edit, Export PDF
+	Invoice Editor
+	Form item di kiri, live preview sesuai theme terpilih di kanan
+	Save Draft, Tandai Terkirim, Export PDF
+	Settings
+	Profil bisnis, logo, rekening bank, default theme
+	Save
+	UI Aplikasi — Design Direction
+* Warna: base netral off-white (#FAFAF8) + teks slate gelap (#1C1F26); satu aksen deep teal (#0F5257) untuk CTA & highlight — bukan template SaaS kartu-berbayang atau kombinasi cream+serif yang generik
+* Status badge: Draft abu-abu, Terkirim biru, Lunas hijau, Overdue merah-oranye — warna berfungsi sebagai informasi status, bukan dekorasi
+* Tipografi: satu sans-serif (Inter) untuk seluruh UI; angka nominal pakai tabular numerals biar rapi sejajar di tabel
+* Layout: sidebar kiri tetap, konten utama table-first (data-dense) — bukan kartu-kartu membulat generik dengan shadow seragam; align kiri, whitespace secukupnya untuk scan cepat data finansial
+* Motion: minim — transisi halus saat buka invoice editor atau expand detail klien, tidak ada animasi hover di semua elemen
+Dashboard
+┌────────────┬─────────────────────────────────┐
+│ Sidebar     │  Rp Tertagih   Rp Belum Dibayar   │
+│  Dashboard  │  Overdue: 2 invoice               │
+│  Contacts   ├─────────────────────────────────┤
+│  Invoices   │  Invoice Terbaru (tabel 5 baris)  │
+│  Settings   │                                    │
+└────────────┴──────────────────────────────────┘

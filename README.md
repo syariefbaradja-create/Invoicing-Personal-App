@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Invoicing Tool — Freelance Syarief
 
-## Getting Started
+Internal invoicing tool untuk pekerjaan freelance digital marketing (Meta/TikTok/Google Ads) ke klien. Single-user, tanpa biaya langganan pihak ketiga. Lihat [PRD](./PRD_Invoicing_Tool_-_Freelance_Syarief.md.txt) untuk detail requirement.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- SQLite via Prisma ORM
+- PDF generation via `@react-pdf/renderer`
+- Auth: password/PIN sederhana (cookie session, bukan multi-user)
+
+## Setup
 
 ```bash
+npm install
+npx prisma migrate dev
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000). Login pakai password dari `.env` (`APP_PASSWORD`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Sebelum dipakai:** ganti `APP_PASSWORD` di `.env` dari nilai default, dan jangan commit file `.env`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Status implementasi
 
-## Learn More
+Sudah jalan (fungsional, styling masih dasar — desain visual final akan dikerjakan terpisah menggunakan skill `ui-ux-pro-max`):
 
-To learn more about Next.js, take a look at the following resources:
+- [x] Auth password/PIN + session cookie
+- [x] Contacts: CRUD klien + riwayat invoice per klien
+- [x] Invoices: buat/edit, nomor otomatis (`INV-YYYY-NNN`, reset per tahun), item + qty + harga + subtotal otomatis, diskon (%/nominal), pajak opsional (default off), catatan/terms, live preview
+- [x] Status invoice: Draft → Terkirim → Lunas/Belum Lunas, filter list termasuk Overdue (dihitung dari due date, bukan status terpisah)
+- [x] Duplicate invoice
+- [x] Export PDF (`/invoices/[id]/pdf`)
+- [x] Dashboard: tertagih bulan ini, belum dibayar, jumlah overdue, 5 invoice terbaru — semua dihitung langsung dari status invoice (tidak ada pencatatan ganda)
+- [x] Settings: profil bisnis, rekening bank, prefix nomor invoice, default theme, currency
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Belum dikerjakan (di luar scope sesi ini):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [ ] Desain visual final (warna, tipografi, layout per Design Direction di PRD) — menyusul via skill `ui-ux-pro-max`
+- [ ] Upload logo & kustomisasi warna/font per invoice
+- [ ] Multi-theme rendering di PDF (saat ini satu layout PDF netral untuk semua theme)
+- [ ] Export data CSV/JSON (portabilitas)
+- [ ] Backup database otomatis
 
-## Deploy on Vercel
+## Catatan teknis
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Database file: `prisma/dev.db` (di-gitignore — backup manual secara berkala).
+- Nomor invoice reset otomatis tiap tahun (`INV-2026-001`, dst.), disimpan di tabel `BusinessProfile`.
+- Status "Overdue" adalah status turunan (invoice `SENT`/`UNPAID` dengan `dueDate` terlewat), bukan status tersimpan terpisah — sesuai prinsip "status invoice adalah satu-satunya sumber data" di PRD.

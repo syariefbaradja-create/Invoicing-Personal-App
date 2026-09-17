@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model BusinessProfile {
+  id                 Int      @id @default(autoincrement())
+  businessName       String   @default("")
+  ownerName          String   @default("")
+  email              String   @default("")
+  phone              String   @default("")
+  address            String   @default("")
+  logoUrl            String?
+  bankName           String?
+  bankAccountName    String?
+  bankAccountNumber  String?
+  bankBranch         String?
+  defaultTheme       Theme    @default(MODERN_BOLD)
+  primaryColor       String   @default("#FAFAF8")
+  accentColor        String   @default("#0F5257")
+  fontChoice         String   @default("Inter")
+  invoicePrefix      String   @default("INV")
+  nextInvoiceSeq     Int      @default(1)
+  invoiceSeqYear     Int      @default(0)
+  defaultTerms       String?
+  currency           String   @default("IDR")
+  updatedAt          DateTime @updatedAt
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  name      String
+  company   String?
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  invoices  Invoice[]
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  UNPAID
+}
+
+enum Theme {
+  MINIMAL_CLEAN
+  MODERN_BOLD
+  CLASSIC_PROFESSIONAL
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  number         String        @unique
+  client         Client        @relation(fields: [clientId], references: [id])
+  clientId       String
+  issueDate      DateTime      @default(now())
+  dueDate        DateTime
+  status         InvoiceStatus @default(DRAFT)
+  theme          Theme         @default(MODERN_BOLD)
+  currency       String        @default("IDR")
+  discountType   DiscountType?
+  discountValue  Float         @default(0)
+  taxEnabled     Boolean       @default(false)
+  taxRate        Float         @default(0)
+  notes          String?
+  subtotal       Float         @default(0)
+  discountAmount Float         @default(0)
+  taxAmount      Float         @default(0)
+  total          Float         @default(0)
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          InvoiceItem[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId   String
+  description String
+  qty         Float   @default(1)
+  unitPrice   Float   @default(0)
+  subtotal    Float   @default(0)
+  position    Int     @default(0)
+
+  @@index([invoiceId])
+}
