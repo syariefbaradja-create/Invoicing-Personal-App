@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   SquaresFour,
@@ -17,7 +18,13 @@ const NAV_ITEMS = [
   { href: "/settings", label: "Settings", icon: Gear },
 ];
 
-export function Sidebar() {
+export function Sidebar({
+  logoUrl,
+  businessName,
+}: {
+  logoUrl?: string | null;
+  businessName?: string;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -31,10 +38,25 @@ export function Sidebar() {
     <aside className="flex h-screen w-60 shrink-0 flex-col justify-between border-r border-border bg-card px-3 py-5">
       <div>
         <div className="mb-6 flex items-center gap-2 px-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Receipt size={18} weight="fill" aria-hidden="true" />
-          </div>
-          <span className="text-base font-semibold text-foreground">Invoicing</span>
+          {logoUrl ? (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-card">
+              <Image
+                src={logoUrl}
+                alt={businessName || "Logo bisnis"}
+                width={32}
+                height={32}
+                className="h-full w-full object-contain"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Receipt size={18} weight="fill" aria-hidden="true" />
+            </div>
+          )}
+          <span className="truncate text-base font-semibold text-foreground">
+            {businessName || "Invoicing"}
+          </span>
         </div>
         <nav className="space-y-0.5">
           {NAV_ITEMS.map((item) => {

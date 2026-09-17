@@ -2,6 +2,7 @@ import { getSettings, updateSettings } from "@/lib/actions/settings";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Field, inputClass } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { LogoUploadField } from "@/components/LogoUploadField";
 
 export default async function SettingsPage() {
   const profile = await getSettings();
@@ -11,8 +12,9 @@ export default async function SettingsPage() {
       <PageHeader title="Settings" />
 
       <form action={updateSettings} className="space-y-6">
-        <fieldset className="space-y-3 rounded-lg border border-border bg-card p-5">
+        <fieldset className="space-y-4 rounded-lg border border-border bg-card p-5">
           <legend className="px-1 text-sm font-semibold text-foreground">Profil Bisnis</legend>
+          <LogoUploadField currentLogoUrl={profile.logoUrl} />
           <div className="grid grid-cols-2 gap-3">
             <Field label="Nama Bisnis">
               <input

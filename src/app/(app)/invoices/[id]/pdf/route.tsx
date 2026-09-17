@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import path from "path";
 import { getInvoice } from "@/lib/actions/invoices";
 import { getSettings } from "@/lib/actions/settings";
 import { InvoiceDocument } from "@/components/pdf/InvoiceDocument";
@@ -17,8 +18,14 @@ export async function GET(
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
   }
 
+  // react-pdf's Image only supports raster formats (PNG/JPG/WEBP), not SVG.
+  const logoSrc =
+    profile.logoUrl && !profile.logoUrl.endsWith(".svg")
+      ? path.join(process.cwd(), "public", profile.logoUrl)
+      : null;
+
   const buffer = await renderToBuffer(
-    <InvoiceDocument invoice={invoice} profile={profile} />
+    <InvoiceDocument invoice={invoice} profile={profile} logoSrc={logoSrc} />
   );
 
   return new NextResponse(new Uint8Array(buffer), {

@@ -42,6 +42,10 @@ yarn-error.log*
 *.db
 *.db-journal
 
+# user-uploaded files
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

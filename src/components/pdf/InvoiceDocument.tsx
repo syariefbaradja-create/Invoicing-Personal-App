@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 
 type PdfInvoice = {
   number: string;
@@ -53,6 +53,7 @@ function formatDate(d: Date) {
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, fontFamily: "Helvetica", color: "#0F172A" },
   headerRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 24 },
+  logo: { width: 40, height: 40, objectFit: "contain" },
   businessName: { fontSize: 16, fontWeight: 700, color: "#1E3A5F" },
   muted: { color: "#64748B" },
   invoiceTitle: { fontSize: 20, fontWeight: 700, textAlign: "right", color: "#1E3A5F" },
@@ -90,19 +91,26 @@ const styles = StyleSheet.create({
 export function InvoiceDocument({
   invoice,
   profile,
+  logoSrc,
 }: {
   invoice: PdfInvoice;
   profile: PdfProfile;
+  logoSrc?: string | null;
 }) {
   return (
     <Document title={`Invoice ${invoice.number}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.businessName}>{profile.businessName || profile.ownerName}</Text>
-            <Text style={styles.muted}>{profile.address}</Text>
-            <Text style={styles.muted}>{profile.email}</Text>
-            <Text style={styles.muted}>{profile.phone}</Text>
+          <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 10 }}>
+            {logoSrc && <Image src={logoSrc} style={styles.logo} />}
+            <View>
+              <Text style={styles.businessName}>
+                {profile.businessName || profile.ownerName}
+              </Text>
+              <Text style={styles.muted}>{profile.address}</Text>
+              <Text style={styles.muted}>{profile.email}</Text>
+              <Text style={styles.muted}>{profile.phone}</Text>
+            </View>
           </View>
           <View>
             <Text style={styles.invoiceTitle}>INVOICE</Text>
